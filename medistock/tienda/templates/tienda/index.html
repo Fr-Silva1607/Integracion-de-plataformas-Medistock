@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    {% load static %}
+
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- SITE TITLE -->
+    <title>MediStock</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Exo:wght@300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{% static 'assets/fonts/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/fonts/themify-icons.css' %}">
+
+    <!-- Owl Carousel -->
+    <link rel="stylesheet" href="{% static 'assets/owlcarousel/css/owl.carousel.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/owlcarousel/css/owl.theme.css' %}">
+
+    <!-- Fonts -->
+    <link rel="stylesheet" href="{% static 'assets/css/fonts.css' %}">
+
+    <!-- Plugins -->
+    <link href="{% static 'assets/css/prettyPhoto.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/css/animate.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/slick.css' %}">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/menu.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/responsive.css' %}">
+
+    <!-- IE Support -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body data-spy="scroll" data-offset="80">
+
+	<!-- PRELOADER -->
+	<div class="preloader">
+		<div class="status">
+			<div class="status-mes"></div>
+		</div>
+	</div>
+	<!-- PRELOADER -->
+
+	<!-- INICIO NAVBAR -->
+	<div class="site-mobile-menu site-navbar-target">
+		<div class="site-mobile-menu-header">
+			<div class="site-mobile-menu-close mt-3">
+				<span class="icon-close2 js-menu-toggle"></span>
+			</div>
+		</div>
+		<div class="site-mobile-menu-body"></div>
+	</div>
+
+	<header class="site-navbar js-sticky-header site-navbar-target" role="banner">
+		<div class="container">
+			<div class="row align-items-center">
+				<div class="col-6 col-xl-2">
+					<h1 class="mb-0 site-logo">
+    				<a href="{% url 'home' %}">
+       			 <img src="{% static 'assets/img/MediStock.logo.webp' %}" alt=""> <!-- width="150" -->
+   					 </a>
+					</h1>
+				</div>
+				<div class="col-12 col-md-10 d-none d-xl-block">
+					<nav class="site-navigation position-relative text-right" role="navigation">
+						<ul class="site-menu main-menu js-clone-nav mr-auto d-none d-lg-block">
+							<li><a href="index.html">Inicio</a></li>
+							<li><a class="nav-link" href="about.html">Sobre Nosotros</a></li>
+							<li class="has-children">
+								<a href="property.html" class="nav-link">Productos</a>
+								<ul class="dropdown">
+									<li><a href="property-details.html" class="nav-link">Detalles del Producto</a></li>
+								</ul>
+							</li>
+							<li><a class="nav-link" href="contact.html">Contactanos</a></li>
+						</ul>
+					</nav>
+				</div>
+				<div class="col-6 d-inline-block d-xl-none ml-md-0 py-3" style="position: relative; top: 3px;">
+					<a href="#" class="site-menu-toggle js-menu-toggle float-right"><span
+							class="icon-menu h3"></span></a>
+				</div>
+				
+			</div>
+		</div>
+	</header>
+	<!-- TERMINO NAVBAR-->
+
+	<!-- HOME -->
+	<section id="home" class="home_bg"> <!--<section id="home" class="home_bg" 
+		style="background-image: url('{% static "assets/img/..." %}');"> -->
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-10 offset-lg-1 col-sm-12 col-xs-12 text-center">
+					<div class="hero-text">
+						<h2>MediStock</h2>
+						<p>En Medistock encuentras todo lo que necesitas en insumos médicos y farmacéuticos, de forma rápida, 
+							segura y al mejor precio. Explora nuestro catálogo, descubre productos de calidad y realiza tus 
+							compras en pocos pasos. ¡Ahorra tiempo, compra fácil y recibe lo que necesitas sin complicaciones!</p>
+						<div class="home_btn">
+							<a href="about.html" class="app-btn wow bounceIn page-scroll home_btn_color_one"
+								data-wow-delay=".6s">Conocenos</a>
+							<a href="gallery.html" class="app-btn wow bounceIn page-scroll home_btn_color_two"
+								data-wow-delay=".8s">Compra Aquí</a>
+						</div>
+					</div>
+				</div><!--- END COL -->
+			</div><!--- END ROW -->
+		</div><!--- END CONTAINER -->
+	</section>
+	<!-- END  HOME -->
+
+	<!-- productos unitarios -->
+	<section class="template_property">
+		<div class="container">
+			<div class="section-title text-center wow zoomIn">
+				<h2>MAS VENDIDOS</h2>
+				<div></div>
+			</div>
+			<div class="row">
+<!--- PRODUCTO 1-->
+<div class="col-lg-4 col-sm-12 col-xs-12">
+	<div class="single_property">
+		<img src="{% static 'assets/img/property/GuantesNitrilo.png' %}" width="200">
+		<div class="single_property_content">
+			<h4><a href="#">Guantes de Nitrilo (Caja x100)</a></h4>
+			<p>Protección segura y cómoda para uso médico. Ideales para clínicas, consultas y uso general.</p>
+		</div>
+		<div class="single_property_price">
+			Compra al por mayor <span>$ 8,990</span>
+		</div>
+	</div>
+</div>
+<!--- TERMINO PRODUCTO 1-->
+
+<!--- PRODUCTO 2-->
+<div class="col-lg-4 col-sm-12 col-xs-12">
+	<div class="single_property">
+		<img src="{% static 'assets/img/property/MascarillaQuirurgica.png' %}" width="200">
+		<div class="single_property_content">
+			<h4><a href="#">Mascarillas Quirúrgicas (Caja x50)</a></h4>
+			<p>Alta filtración y comodidad para uso diario en entornos clínicos y personales.</p>
+		</div>
+		<div class="single_property_price">
+			Compra rápida <span>$ 4,990</span>
+		</div>
+	</div>
+</div>
+<!--- TERMINO PRODUCTO 2-->
+
+<!--- PRODUCTO 3-->
+<div class="col-lg-4 col-sm-12 col-xs-12">
+	<div class="single_property">
+		<img src="{% static 'assets/img/property/AlcoholGel.png' %}" width="200">
+		<div class="single_property_content">
+			<h4><a href="#">Alcohol Gel 1 Litro</a></h4>
+			<p>Desinfección efectiva con fórmula antibacterial. Ideal para hogares y centros de salud.</p>
+		</div>
+		<div class="single_property_price">
+			Uso profesional <span>$ 3,500</span>
+		</div>
+	</div>
+</div>
+<!--- TERMINO PRODUCTO 3-->
+
+<!--- PRODUCTO 4-->
+<div class="col-lg-4 col-sm-12 col-xs-12">
+	<div class="single_property">
+		<img src="{% static 'assets/img/property/jeringa Desechable.png' %}" width="200">
+		<div class="single_property_content">
+			<h4><a href="#">Jeringas Desechables (Pack x100)</a></h4>
+			<p>Precisión y seguridad para procedimientos médicos. Producto estéril y de un solo uso.</p>
+		</div>
+		<div class="single_property_price">
+			Alta rotación <span>$ 12,990</span>
+		</div>
+	</div>
+</div>
+<!--- TERMINO PRODUCTO 4-->
+
+<!--- PRODUCTO 5-->
+<div class="col-lg-4 col-sm-12 col-xs-12">
+	<div class="single_property">
+		<img src="{% static 'assets/img/property/Oximetro.png' %}" width="200">
+		<div class="single_property_content">
+			<h4><a href="#">Oxímetro de Pulso Digital</a></h4>
+			<p>Dispositivo médico no invasivo y portátil que mide oxigenación y pulso en segundos. Compacto, preciso y fácil de usar.</p>
+		</div>
+		<div class="single_property_price">
+			Compra individual <span>$ 19,990</span>
+		</div>
+	</div>
+</div>
+<!--- TERMINO PRODUCTO 5-->
+
+<!--- PRODUCTO 6 -->
+<div class="col-lg-4 col-sm-12 col-xs-12">
+	<div class="single_property">
+		<img src="{% static 'assets/img/property/CamillaClinica.png' %}" width="200">
+		<div class="single_property_content">
+			<h4><a href="#">Camilla Clínica Ajustable</a></h4>
+			<p>Diseño resistente y cómodo para atención médica. Ideal para consultas y centros de salud.</p>
+		</div>
+		<div class="single_property_price">
+			Uso institucional <span>$ 249,990</span>
+		</div>
+	</div>
+</div>
+<!--- TERMINO PRODUCTO 6-->
+
+<!--- PRODUCTO 7 -->
+<div class="col-lg-4 col-sm-12 col-xs-12">
+	<div class="single_property">
+		<img src="{% static 'assets/img/property/SillaDeRuedas.png' %}" width="200">
+		<div class="single_property_content">
+			<h4><a href="#">Silla de Ruedas Plegable</a></h4>
+			<p>Fácil de transportar y almacenar. Ideal para uso clínico o personal.</p>
+		</div>
+		<div class="single_property_price">
+			Alta demanda <span>$ 129,990</span>
+		</div>
+	</div>
+</div>
+<!--- TERMINO PRODDUCTO 7 -->	
+
+<!--- PRODUCTO 8-->
+<div class="col-lg-4 col-sm-12 col-xs-12">
+	<div class="single_property">
+		<img src="{% static 'assets/img/property/Nebulizador.png' %}" width="200">
+		<div class="single_property_content">
+			<h4><a href="#">Nebulizador Eléctrico</a></h4>
+			<p>Tratamiento respiratorio eficiente y silencioso. Ideal para uso doméstico y clínico.</p>
+		</div>
+		<div class="single_property_price">
+			Equipo médico <span>$ 34,990</span>
+		</div>
+	</div>
+</div>
+<!--- TERMINO PRODUCTO 8-->
+
+<!--- PRODUCTO 9-->
+<div class="col-lg-4 col-sm-12 col-xs-12">
+	<div class="single_property">
+		<img src="{% static 'assets/img/property/Desfribrilador.png' %}" width="200">
+		<div class="single_property_content">
+			<h4><a href="#">Desfibrilador DEA</a></h4>
+			<p>Equipo vital para emergencias cardíacas. Uso profesional en clínicas y empresas.</p>
+		</div>
+		<div class="single_property_price">
+			Equipo crítico <span>$ 1,290,000</span>
+		</div>
+	</div>
+</div>
+<!--- TERMINO PRODUCTO 9-->
+				</div>
+			</div><!--- END ROW -->
+		</div><!--- END CONTAINER -->
+	</section>
+	<!-- END productos unitarios -->
+
+	<!-- START medicamentos -->
+	<section class="template_property section-padding">
+		<div class="container">
+			<div class="section-title  text-center wow zoomIn">
+				<h2>medicamentos</h2>
+				<div></div>
+			</div>
+<!--- INICIO 1-->
+<div class="row">
+	<div class="col-lg-4 col-sm-12 col-xs-12">
+		<div class="single_property">
+			<img src="{% static 'assets/img/property/clonazepam.png' %}" width="200">
+			<div class="single_property_description text-center">
+				<span><i class="fa fa-object-group"></i> BAJO ORDEN MÉDICA</span>
+			</div>
+			<div class="single_property_content">
+				<h4><a href="#">Clonazepam 2mg</a></h4>
+				<p>Medicamento utilizado para trastornos de ansiedad y crisis. Requiere receta médica.</p>
+			</div>
+			<div class="single_property_price">
+				Uso controlado <span>$ 5,990</span>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+			</div>
+		</div>
+	</div>
+<!--- TERMINO 1-->
+
+<!--INICIO 2-->
+	<div class="col-lg-4 col-sm-12 col-xs-12">
+		<div class="single_property">
+			<img src="{% static 'assets/img/property/Diazepam.png' %}" width="200">
+			<div class="single_property_description text-center">
+				<span><i class="fa fa-object-group"></i> BAJO ORDEN MÉDICA</span>
+			</div>
+			<div class="single_property_content">
+				<h4><a href="#">Diazepam 10mg</a></h4>
+				<p>Indicado para ansiedad, espasmos musculares y sedación. Venta bajo prescripción.</p>
+			</div>
+			<div class="single_property_price">
+				Uso controlado <span>$ 4,990</span>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+			</div>
+		</div>
+	</div>
+<!--- TERMINO 2-->
+
+<!--- INICIO 3-->
+	<div class="col-lg-4 col-sm-12 col-xs-12">
+		<div class="single_property">
+			<img src="{% static 'assets/img/property/Alprazolam.png' %}" width="200">
+			<div class="single_property_description text-center">
+				<span><i class="fa fa-object-group"></i> BAJO ORDEN MÉDICA</span>
+			</div>
+			<div class="single_property_content">
+				<h4><a href="#">Alprazolam 0.5mg</a></h4>
+				<p>Tratamiento para ansiedad y crisis de pánico. Requiere una validación médica previa.</p>
+			</div>
+			<div class="single_property_price">
+				Uso controlado <span>$ 6,500</span>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+			</div>
+		</div>
+	</div>
+<!--- TERMINO 3-->
+
+<!--- INICIO 4-->
+	<div class="col-lg-4 col-sm-12 col-xs-12">
+		<div class="single_property">
+			<img src="{% static 'assets/img/property/Paracetamol.png' %}" width="200">
+			<div class="single_property_content">
+				<h4><a href="#">Paracetamol 500mg</a></h4>
+				<p>Analgésico y antipirético de uso común. Ideal para dolor leve y fiebre.</p>
+			</div>
+			<div class="single_property_price">
+				Venta libre <span>$ 1,990</span>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+			</div>
+		</div>
+	</div>
+<!--- TERMINO 4-->
+
+<!--- INICIO 5-->
+	<div class="col-lg-4 col-sm-12 col-xs-12">
+		<div class="single_property">
+			<img src="{% static 'assets/img/property/Ibuprofeno.png' %}" width="200">
+			<div class="single_property_content">
+				<h4><a href="#">Ibuprofeno 400mg</a></h4>
+				<p>Antiinflamatorio efectivo para dolores musculares, fiebre e inflamación.</p>
+			</div>
+			<div class="single_property_price">
+				Venta libre <span>$ 2,490</span>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+			</div>
+		</div>
+	</div>
+<!--- TERMINO 5-->
+
+<!--- INICIO 6-->
+	<div class="col-lg-4 col-sm-12 col-xs-12">
+		<div class="single_property">
+			<img src="{% static 'assets/img/property/Amoxicilina.png' %}" width="200">
+			<div class="single_property_content">
+				<h4><a href="#">Amoxicilina 500mg</a></h4>
+				<p>Antibiótico de amplio espectro para infecciones bacterianas comunes.</p>
+			</div>
+			<div class="single_property_price">
+				Venta bajo receta <span>$ 3,990</span>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+				<i class="fa fa-star"></i>
+			</div>
+		</div>
+	</div>
+<!--- TERMINO 6-->
+
+			</div><!--- END ROW -->
+		</div><!--- END CONTAINER -->
+	</section>
+	<!-- END  PROPERTY -->
+
+	<!-- COLABORADORES -->
+	<section id="team" class="our_team section-padding">
+		<div class="container">
+			<div class="section-title text-center wow zoomIn">
+				<h2>CLIENTES DESTACADOS</h2>
+				<div></div>
+			</div>
+			<div class="row text-center">
+				<div class="col-lg-3 col-sm-3 col-xs-12">
+					<div class="single_team">
+						<img src="{% static 'assets/img/team/hospitalmetropolitano.png' %}" width="150">
+						<h3>Hospital Metropolitano</h3>
+						<ul class="list-inline">
+							<li><a href="#" class="st-facebook"><i class="fa fa-facebook"></i></a></li> 
+							<li><a href="#" class="st-twitter"><i class="fa fa-instagram"></i></a></li>
+							<li><a href="#" class="st-instagram"><i class="fa fa-instagram"></i></a></li>
+						</ul>
+					</div><!--- EQUIPO -->
+				</div><!--- END COL -->
+				<div class="col-lg-3 col-sm-3 col-xs-12">
+					<div class="single_team">
+						<img src="{% static 'assets/img/team/HospitalSotero.jpg' %}" width="150">
+						<h3>Sotero Del Rio</h3>
+						<ul class="list-inline">
+							<li><a href="#" class="st-facebook"><i class="fa fa-facebook"></i></a></li>
+							<li><a href="#" class="st-twitter"><i class="fa fa-instagram"></i></a></li>
+							<li><a href="#" class="st-instagram"><i class="fa fa-instagram"></i></a></li>
+						</ul>
+					</div><!--- END SINGLE TEAM -->
+				</div><!--- END COL -->
+				<div class="col-lg-3 col-sm-3 col-xs-12">
+					<div class="single_team">
+						<img src="{% static 'assets/img/team/fachHospital.jpg' %}" width="150">
+						<h3>Hospital FACH</h3>
+						<ul class="list-inline">
+							<li><a href="#" class="st-facebook"><i class="fa fa-facebook"></i></a></li>
+							<li><a href="#" class="st-twitter"><i class="fa fa-instagram"></i></a></li>
+							<li><a href="#" class="st-instagram"><i class="fa fa-instagram"></i></a></li>
+						</ul>
+					</div><!--- END SINGLE TEAM -->
+				</div><!--- END COL -->
+				<div class="col-lg-3 col-sm-3 col-xs-12">
+					<div class="single_team">
+						<img src="{% static 'assets/img/team/Davila_2021.webp' %}" width="150">
+						<h3>Clinica Davila</h3>
+						<ul class="list-inline">
+							<li><a href="#" class="st-facebook"><i class="fa fa-facebook"></i></a></li>
+							<li><a href="#" class="st-twitter"><i class="fa fa-instagram"></i></a></li>
+							<li><a href="#" class="st-instagram"><i class="fa fa-instagram"></i></a></li>
+						</ul>
+					</div><!--- END SINGLE TEAM -->
+				</div><!--- END COL -->
+			</div><!--- END ROW -->
+		</div><!--- END CONTAINER -->
+	</section>
+	<!-- END COLABORADORES -->
+
+	<!-- START FOOTER -->
+	<footer class="footer-area">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-12 text-center">
+					<div class="footer_social">
+						<ul>
+							<li><a data-toggle="tooltip" data-placement="top" title="Facebook" href="#"><i
+										class="fa fa-facebook"></i></a>
+							</li>
+							<li><a data-toggle="tooltip" data-placement="top" title="Twitter" href="#"><i
+										class="fa fa-instagram"></i></a>
+							</li>
+							<li><a data-toggle="tooltip" data-placement="top" title="Google Plus" href="#"><i
+										class="fa fa-google-plus"></i></a>
+							</li>
+							<li><a data-toggle="tooltip" data-placement="top" title="Linkedin" href="#"><i
+										class="fa fa-linkedin"></i></a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="row footer-padding">
+				<div class="col-lg-3 col-sm-3 col-xs-12">
+					<div class="single_footer">
+						<h4>Contactanos</h4>
+						<div class="footer_contact">
+							<ul>
+								<li><i class="fa fa-rocket"></i> <span>P.º Estado 115, Oficina 507, 8320224 Santiago, Región Metropolitana</span></li>
+								<li><i class="fa fa-phone"></i> <span>Llamanos  (+569) 1234 5678</span></li>
+								<li><i class="fa fa-envelope"></i> <span>medistock1111@gmail.com</span></li>
+							</ul>
+						</div>
+					</div>
+				</div><!--- END COL -->
+				<div class="col-lg-3 col-sm-3 col-xs-12">
+					<div class="single_footer">
+						<h4>Informacion Legal</h4>
+						<div class="footer_contact">
+							<ul>
+								<li><a href="#">Términos y Condiciones</a></li>
+								<li><a href="#">Politica de Privacidad</a></li>
+								<li><a href="#">Recetas medicas</a></li>
+							</ul>
+						</div>
+					</div>
+				</div><!--- END COL -->
+				<div class="col-lg-3 col-sm-3 col-xs-12">
+					<div class="single_footer">
+						<h4>Link Directos</h4>
+						<div class="footer_contact">
+							<ul>
+								<li><a href="#">Inicio</a></li>
+								<li><a href="#">Sobre Nosotros</a></li>
+								<li><a href="#">Contactanos</a></li>
+								<li><a href="#">Catálogo</a></li>
+							</ul>
+						</div>
+					</div>
+				</div><!--- END COL -->
+
+			</div><!--- END ROW -->
+			<div class="row text-center">
+				<div class="col-lg-12 col-sm-12 col-xs-12 wow zoomIn">
+					<p class="footer_copyright">&copy;  2026 Comercializadora Medistock. Todos los derechos reservados. Desarrollado por <a
+							href="https://github.com/Fr-Silva1607/Integracion-de-plataformas-Medistock.git" target="_blank">Equipo de Desarrollo</a></p>.
+				</div><!--- END COL -->
+			</div><!--- END ROW -->
+		</div><!--- END CONTAINER -->
+	</footer>
+	<!-- END FOOTER -->
+
+	<!-- Latest jQuery -->
+	<script src="{% static 'assets/js/jquery-1.12.4.min.js' %}"></script>
+	<!-- Latest compiled and minified Bootstrap -->
+	<script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
+	<!-- modernizer JS -->
+	<script src="{% static 'assets/js/scripts.js' %}"></script>
+	<!-- stellar js -->
+	<script src="{% static 'assets/js/jquery.stellar.min.js' %}"></script>
+	<!-- Menu js -->
+	<script src="{% static 'assets/js/menu.js' %}"></script>
+	<script src="{% static 'assets/js/jquery.sticky.js' %}"></script>
+	<!-- owl-carousel min js  -->
+	<script src="{% static 'assets/owlcarousel/js/owl.carousel.min.js' %}"></script>
+	<!-- MAGNIFICANT JS -->
+	<script src="{% static 'assets/js/jquery.magnific-popup.min.js' %}"></script>
+	<!-- Slick JS -->
+	<script src="{% static 'assets/js/slick.min.js' %}"></script>
+	<!-- jquery mixitup min js -->
+	<script src="{% static 'assets/js/jquery.mixitup.js' %}"></script>
+	<!-- jquery.prettyPhoto js -->
+	<script src="{% static 'assets/js/jquery.prettyPhoto.js' %}"></script>
+	<!-- scrolltopcontrol js -->
+	<script src="{% static 'assets/js/scrolltopcontrol.js' %}"></script>
+	<!-- WOW - Reveal Animations When You Scroll -->
+	<script src="{% static 'assets/js/wow.min.js' %}"></script>
+	<!-- scripts js -->
+	<script src="{% static 'assets/js/scripts.js' %}"></script>
+</body>
+
+</html>
