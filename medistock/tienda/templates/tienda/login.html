@@ -1,0 +1,298 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MediStock — Login</title>
+
+    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Exo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/fonts/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/fonts/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/fonts.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/animate.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/menu.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/login.css' %}">
+</head>
+<body data-spy="scroll" data-offset="80">
+
+<!-- PRELOADER -->
+<div class="preloader">
+    <div class="status"><div class="status-mes"></div></div>
+</div>
+
+<!-- NAVBAR MÓVIL -->
+<div class="site-mobile-menu site-navbar-target">
+    <div class="site-mobile-menu-header">
+        <div class="site-mobile-menu-close mt-3">
+            <span class="icon-close2 js-menu-toggle"></span>
+        </div>
+    </div>
+    <div class="site-mobile-menu-body"></div>
+</div>
+
+<!-- NAVBAR -->
+<header class="site-navbar js-sticky-header site-navbar-target" role="banner">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-6 col-xl-2">
+                <h1 class="mb-0 site-logo">
+                    <a href="{% url 'home' %}">
+                        <img src="{% static 'assets/img/MediStock.logo.webp' %}" alt="MediStock">
+                    </a>
+                </h1>
+            </div>
+            <div class="col-12 col-md-8 d-none d-xl-block">
+                <nav class="site-navigation position-relative text-right" role="navigation">
+                    <ul class="site-menu main-menu js-clone-nav mr-auto d-none d-lg-block">
+                        <li><a href="{% url 'home' %}">Inicio</a></li>
+                        <li><a class="nav-link" href="{% url 'about' %}">Nosotros</a></li>
+                        <li><a class="nav-link" href="{% url 'productos' %}">Productos</a></li>
+                        <li><a class="nav-link" href="{% url 'contact' %}">Contáctanos</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="col-xl-2 d-none d-xl-flex justify-content-end align-items-center">
+                <div class="navbar-icons">
+                    <a href="/carrito/" title="Carrito">
+                        <i class="fa fa-shopping-cart"></i>
+                        <span class="cart-badge" id="cart-count">0</span>
+                    </a>
+                    <a href="/login/" class="btn-login">
+                        <i class="fa fa-user"></i> Login
+                    </a>
+                </div>
+            </div>
+            <div class="col-6 d-inline-block d-xl-none ml-md-0 py-3" style="position:relative;top:3px;">
+                <a href="#" class="site-menu-toggle js-menu-toggle float-right">
+                    <span class="icon-menu h3"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- LOGIN -->
+<section class="login-section">
+    <div class="login-card wow fadeInUp" data-wow-duration="0.6s">
+
+        <div class="login-logo">
+            <img src="{% static 'assets/img/MediStock.logo.webp' %}" alt="MediStock">
+        </div>
+        <h2 class="login-title">Iniciar Sesión</h2>
+        <p class="login-subtitle">Ingresa tus credenciales para continuar</p>
+
+        <!-- Alerta de error -->
+        <div class="login-alert" id="login-alert" style="display:none;"></div>
+
+        <!-- Campo email -->
+        <div class="form-group-login">
+            <label for="login-email"><i class="fa fa-envelope"></i> Correo electrónico</label>
+            <input type="email" id="login-email" class="input-login" placeholder="correo@ejemplo.com" autocomplete="email">
+            <span class="field-error" id="err-email"></span>
+        </div>
+
+        <!-- Campo contraseña -->
+        <div class="form-group-login">
+            <label for="login-password"><i class="fa fa-lock"></i> Contraseña</label>
+            <div class="input-password-wrap">
+                <input type="password" id="login-password" class="input-login" placeholder="Tu contraseña" autocomplete="current-password">
+                <span class="toggle-password" onclick="togglePassword('login-password', this)">
+                    <i class="fa fa-eye"></i>
+                </span>
+            </div>
+            <span class="field-error" id="err-password"></span>
+        </div>
+
+        <!-- Botones principales -->
+        <div class="login-btn-group">
+            <button class="btn-aceptar" id="btn-login" onclick="handleLogin()">
+                <i class="fa fa-sign-in"></i> Ingresar
+            </button>
+            <button class="btn-cancelar" onclick="window.location.href='{% url 'home' %}'">
+                <i class="fa fa-times"></i> Cancelar
+            </button>
+        </div>
+
+        <!-- Botones de registro -->
+        <div class="register-btns">
+            <button class="btn-registro-persona" onclick="window.location.href='/registro/'">
+                <i class="fa fa-user-plus"></i> Registrarse como Persona
+            </button>
+            <button class="btn-registro-empresa" onclick="window.location.href='/registro-empresa/'">
+                <i class="fa fa-building"></i> Registrarse como Empresa
+            </button>
+        </div>
+
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer-area">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-12">
+                <p class="footer_copyright">
+                    &copy; 2026 Comercializadora Medistock. Todos los derechos reservados.
+                    Desarrollado por <a href="https://github.com/Fr-Silva1607/Integracion-de-plataformas-Medistock.git" target="_blank">Equipo de Desarrollo</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="{% static 'assets/js/jquery-1.12.4.min.js' %}"></script>
+<script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/js/menu.js' %}"></script>
+<script src="{% static 'assets/js/jquery.sticky.js' %}"></script>
+<script src="{% static 'assets/js/wow.min.js' %}"></script>
+<script src="{% static 'assets/js/scripts.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL = '{{ SUPABASE_URL }}';
+const SUPABASE_KEY = '{{ SUPABASE_KEY }}';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── Mostrar/ocultar contraseña ──
+function togglePassword(inputId, icon) {
+    const input = document.getElementById(inputId);
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    icon.innerHTML = isPassword ? '<i class="fa fa-eye-slash"></i>' : '<i class="fa fa-eye"></i>';
+}
+
+// ── Validación básica ──
+function validateLogin() {
+    let valid = true;
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+
+    document.getElementById('err-email').textContent    = '';
+    document.getElementById('err-password').textContent = '';
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.getElementById('err-email').textContent = 'Ingresa un correo válido.';
+        valid = false;
+    }
+    if (!password || password.length < 6) {
+        document.getElementById('err-password').textContent = 'La contraseña debe tener al menos 6 caracteres.';
+        valid = false;
+    }
+    return valid;
+}
+
+// ── Mostrar alerta ──
+function showAlert(msg, type = 'error') {
+    const el = document.getElementById('login-alert');
+    el.className = 'login-alert ' + type;
+    el.textContent = msg;
+    el.style.display = 'block';
+}
+
+// ── Login: busca en tabla usuarios y empresas ──
+async function handleLogin() {
+    if (!validateLogin()) return;
+
+    const email    = document.getElementById('login-email').value.trim().toLowerCase();
+    const password = document.getElementById('login-password').value;
+    const btn      = document.getElementById('btn-login');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Verificando...';
+    document.getElementById('login-alert').style.display = 'none';
+
+    try {
+        // Buscar en tabla usuarios
+        let { data: usuario } = await sb
+            .from('usuarios')
+            .select('id, nombre, email, password_hash, activo')
+            .eq('email', email)
+            .single();
+
+        // Si no encontró, buscar en tabla empresas
+        let tipo = 'usuario';
+        if (!usuario) {
+            const { data: empresa } = await sb
+                .from('empresas')
+                .select('id, nombre_empresa, email, password_hash, activo')
+                .eq('email', email)
+                .single();
+
+            if (empresa) {
+                usuario = { ...empresa, nombre: empresa.nombre_empresa };
+                tipo = 'empresa';
+            }
+        }
+
+        if (!usuario) {
+            showAlert('Correo no registrado en el sistema.');
+            return;
+        }
+
+        if (!usuario.activo) {
+            showAlert('Tu cuenta está desactivada. Contacta a soporte.');
+            return;
+        }
+
+        // Verificar contraseña 
+        const hashIngresado = await hashPassword(password);
+        if (hashIngresado !== usuario.password_hash) {
+            showAlert('Contraseña incorrecta.');
+            return;
+        }
+
+        // Guardar sesión en localStorage
+        localStorage.setItem('medistock_session', JSON.stringify({
+            id: usuario.id,
+            nombre: usuario.nombre,
+            email: usuario.email,
+            tipo: tipo,
+        }));
+
+        showAlert('¡Bienvenido, ' + usuario.nombre + '!', 'success');
+        setTimeout(() => window.location.href = '/', 1200);
+
+    } catch (err) {
+        console.error(err);
+        showAlert('Error de conexión. Intenta nuevamente.');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-sign-in"></i> Ingresar';
+    }
+}
+
+// ── comprar bbdd ──
+async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray  = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ── Carrito badge ──
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('medistock_cart') || '[]');
+    document.getElementById('cart-count').textContent = cart.length;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateCartCount();
+    if (window.WOW) new WOW().init();
+
+    // Enter para login
+    document.getElementById('login-password').addEventListener('keydown', e => {
+        if (e.key === 'Enter') handleLogin();
+    });
+});
+</script>
+</body>
+</html>

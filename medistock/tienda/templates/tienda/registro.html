@@ -1,0 +1,432 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MediStock — Registro</title>
+
+    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Exo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/fonts/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/fonts/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/fonts.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/animate.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/menu.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/login.css' %}">
+</head>
+<body data-spy="scroll" data-offset="80">
+
+<!-- PRELOADER -->
+<div class="preloader">
+    <div class="status"><div class="status-mes"></div></div>
+</div>
+
+<!-- NAVBAR MÓVIL -->
+<div class="site-mobile-menu site-navbar-target">
+    <div class="site-mobile-menu-header">
+        <div class="site-mobile-menu-close mt-3">
+            <span class="icon-close2 js-menu-toggle"></span>
+        </div>
+    </div>
+    <div class="site-mobile-menu-body"></div>
+</div>
+
+<!-- NAVBAR -->
+<header class="site-navbar js-sticky-header site-navbar-target" role="banner">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-6 col-xl-2">
+                <h1 class="mb-0 site-logo">
+                    <a href="{% url 'home' %}">
+                        <img src="{% static 'assets/img/MediStock.logo.webp' %}" alt="MediStock">
+                    </a>
+                </h1>
+            </div>
+            <div class="col-12 col-md-8 d-none d-xl-block">
+                <nav class="site-navigation position-relative text-right" role="navigation">
+                    <ul class="site-menu main-menu js-clone-nav mr-auto d-none d-lg-block">
+                        <li><a href="{% url 'home' %}">Inicio</a></li>
+                        <li><a class="nav-link" href="{% url 'about' %}">Nosotros</a></li>
+                        <li><a class="nav-link" href="{% url 'productos' %}">Productos</a></li>
+                        <li><a class="nav-link" href="{% url 'contact' %}">Contáctanos</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="col-xl-2 d-none d-xl-flex justify-content-end align-items-center">
+                <div class="navbar-icons">
+                    <a href="/carrito/" title="Carrito">
+                        <i class="fa fa-shopping-cart"></i>
+                        <span class="cart-badge" id="cart-count">0</span>
+                    </a>
+                    <a href="/login/" class="btn-login">
+                        <i class="fa fa-user"></i> Login
+                    </a>
+                </div>
+            </div>
+            <div class="col-6 d-inline-block d-xl-none ml-md-0 py-3" style="position:relative;top:3px;">
+                <a href="#" class="site-menu-toggle js-menu-toggle float-right">
+                    <span class="icon-menu h3"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- REGISTRO SECTION -->
+<section class="login-section">
+    <div class="login-card registro-card wow fadeInUp" data-wow-duration="0.6s">
+
+        <div class="login-logo">
+            <img src="{% static 'assets/img/MediStock.logo.webp' %}" alt="MediStock">
+        </div>
+        <h2 class="login-title">Crear Cuenta</h2>
+        <p class="login-subtitle">Completa tus datos para registrarte</p>
+
+        <div class="login-alert" id="reg-alert" style="display:none;"></div>
+
+        <!-- ── DATOS PERSONALES ── -->
+        <div class="form-section-title"><i class="fa fa-user"></i> Datos Personales</div>
+
+        <div class="form-row-double">
+            <div class="form-group-login">
+                <label>RUT <span class="required">*</span></label>
+                <input type="text" id="rut" class="input-login" placeholder="12345678-9" maxlength="12">
+                <span class="field-error" id="err-rut"></span>
+            </div>
+            <div class="form-group-login">
+                <label>Fecha de Nacimiento <span class="required">*</span></label>
+                <input type="date" id="fecha_nac" class="input-login">
+                <span class="field-error" id="err-fecha"></span>
+            </div>
+        </div>
+
+        <div class="form-row-double">
+            <div class="form-group-login">
+                <label>Nombre <span class="required">*</span></label>
+                <input type="text" id="nombre" class="input-login" placeholder="Tu nombre">
+                <span class="field-error" id="err-nombre"></span>
+            </div>
+            <div class="form-group-login">
+                <label>Apellido <span class="required">*</span></label>
+                <input type="text" id="apellido" class="input-login" placeholder="Tu apellido">
+                <span class="field-error" id="err-apellido"></span>
+            </div>
+        </div>
+
+        <div class="form-group-login">
+            <label>Género <span class="required">*</span></label>
+            <select id="genero" class="input-login">
+                <option value="">Selecciona...</option>
+                <option value="masculino">Masculino</option>
+                <option value="femenino">Femenino</option>
+                <option value="otro">Otro</option>
+                <option value="prefiero_no_decir">Prefiero no decir</option>
+            </select>
+            <span class="field-error" id="err-genero"></span>
+        </div>
+
+        <!-- ── CONTACTO ── -->
+        <div class="form-section-title"><i class="fa fa-phone"></i> Contacto</div>
+
+        <div class="form-group-login">
+            <label>Correo electrónico <span class="required">*</span></label>
+            <input type="email" id="email" class="input-login" placeholder="correo@ejemplo.com">
+            <span class="field-error" id="err-email"></span>
+        </div>
+
+        <div class="form-row-double">
+            <div class="form-group-login">
+                <label>Teléfono <span class="required">*</span></label>
+                <input type="tel" id="telefono" class="input-login" placeholder="+56912345678" maxlength="12">
+                <span class="field-error" id="err-telefono"></span>
+            </div>
+            <div class="form-group-login">
+                <label>Región <span class="required">*</span></label>
+                <select id="region" class="input-login" onchange="cargarComunas('region', 'comuna')">
+                    <option value="">Selecciona región...</option>
+                    <option value="Arica y Parinacota">Arica y Parinacota</option>
+                    <option value="Tarapacá">Tarapacá</option>
+                    <option value="Antofagasta">Antofagasta</option>
+                    <option value="Atacama">Atacama</option>
+                    <option value="Coquimbo">Coquimbo</option>
+                    <option value="Valparaíso">Valparaíso</option>
+                    <option value="Metropolitana">Región Metropolitana</option>
+                    <option value="O'Higgins">O'Higgins</option>
+                    <option value="Maule">Maule</option>
+                    <option value="Ñuble">Ñuble</option>
+                    <option value="Biobío">Biobío</option>
+                    <option value="La Araucanía">La Araucanía</option>
+                    <option value="Los Ríos">Los Ríos</option>
+                    <option value="Los Lagos">Los Lagos</option>
+                    <option value="Aysén">Aysén</option>
+                    <option value="Magallanes">Magallanes</option>
+                </select>
+                <span class="field-error" id="err-region"></span>
+            </div>
+        </div>
+
+        <div class="form-row-double">
+            <div class="form-group-login">
+                <label>Comuna <span class="required">*</span></label>
+                <input type="text" id="comuna" class="input-login" placeholder="Tu comuna">
+                <span class="field-error" id="err-comuna"></span>
+            </div>
+            <div class="form-group-login">
+                <label>Dirección <span class="required">*</span></label>
+                <input type="text" id="direccion" class="input-login" placeholder="Calle 123, Dpto 4">
+                <span class="field-error" id="err-direccion"></span>
+            </div>
+        </div>
+
+        <!-- ── SEGURIDAD ── -->
+        <div class="form-section-title"><i class="fa fa-lock"></i> Seguridad</div>
+
+        <div class="form-group-login">
+            <label>Contraseña <span class="required">*</span></label>
+            <div class="input-password-wrap">
+                <input type="password" id="password" class="input-login" placeholder="Mínimo 8 caracteres">
+                <span class="toggle-password" onclick="togglePassword('password', this)">
+                    <i class="fa fa-eye"></i>
+                </span>
+            </div>
+            <div class="password-strength" id="password-strength"></div>
+            <span class="field-error" id="err-password"></span>
+        </div>
+
+        <div class="form-group-login">
+            <label>Confirmar Contraseña <span class="required">*</span></label>
+            <div class="input-password-wrap">
+                <input type="password" id="password2" class="input-login" placeholder="Repite tu contraseña">
+                <span class="toggle-password" onclick="togglePassword('password2', this)">
+                    <i class="fa fa-eye"></i>
+                </span>
+            </div>
+            <span class="field-error" id="err-password2"></span>
+        </div>
+
+        <!-- ── TÉRMINOS ── -->
+        <div class="form-group-login checkbox-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="terminos">
+                Acepto los <a href="#" target="_blank">Términos y Condiciones</a> y la
+                <a href="#" target="_blank">Política de Privacidad</a>
+            </label>
+            <span class="field-error" id="err-terminos"></span>
+        </div>
+
+        <!-- ── BOTONES ── -->
+        <div class="login-btn-group">
+            <button class="btn-aceptar" id="btn-registrar" onclick="handleRegistro()">
+                <i class="fa fa-user-plus"></i> Crear Cuenta
+            </button>
+            <button class="btn-cancelar" onclick="window.location.href='/login/'">
+                <i class="fa fa-times"></i> Cancelar
+            </button>
+        </div>
+
+        <p class="login-link">¿Ya tienes cuenta? <a href="/login/">Inicia sesión aquí</a></p>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer-area">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-12">
+                <p class="footer_copyright">
+                    &copy; 2026 Comercializadora Medistock. Todos los derechos reservados.
+                    Desarrollado por <a href="https://github.com/Fr-Silva1607/Integracion-de-plataformas-Medistock.git" target="_blank">Equipo de Desarrollo</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="{% static 'assets/js/jquery-1.12.4.min.js' %}"></script>
+<script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/js/menu.js' %}"></script>
+<script src="{% static 'assets/js/jquery.sticky.js' %}"></script>
+<script src="{% static 'assets/js/wow.min.js' %}"></script>
+<script src="{% static 'assets/js/scripts.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = '{{ SUPABASE_URL }}';
+const SUPABASE_KEY = '{{ SUPABASE_KEY }}';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── Mostrar/ocultar contraseña ──
+function togglePassword(inputId, icon) {
+    const input = document.getElementById(inputId);
+    const isPass = input.type === 'password';
+    input.type = isPass ? 'text' : 'password';
+    icon.innerHTML = isPass ? '<i class="fa fa-eye-slash"></i>' : '<i class="fa fa-eye"></i>';
+}
+
+// ── Fuerza de contraseña ──
+document.getElementById('password').addEventListener('input', function () {
+    const val = this.value;
+    const bar = document.getElementById('password-strength');
+    let strength = 0;
+    if (val.length >= 8)               strength++;
+    if (/[A-Z]/.test(val))            strength++;
+    if (/[0-9]/.test(val))            strength++;
+    if (/[^A-Za-z0-9]/.test(val))     strength++;
+    const levels = ['', 'weak', 'fair', 'good', 'strong'];
+    const labels = ['', 'Débil', 'Regular', 'Buena', 'Fuerte'];
+    bar.className = 'password-strength ' + (levels[strength] || '');
+    bar.textContent = val.length ? ('Contraseña: ' + (labels[strength] || '')) : '';
+});
+
+// ── Validar RUT chileno ──
+function validarRut(rut) {
+    rut = rut.replace(/\./g, '').replace(/-/g, '').toUpperCase();
+    if (rut.length < 8) return false;
+    const cuerpo = rut.slice(0, -1);
+    const dv     = rut.slice(-1);
+    let suma = 0, multiplo = 2;
+    for (let i = cuerpo.length - 1; i >= 0; i--) {
+        suma += parseInt(cuerpo[i]) * multiplo;
+        multiplo = multiplo < 7 ? multiplo + 1 : 2;
+    }
+    const dvEsperado = 11 - (suma % 11);
+    const dvStr = dvEsperado === 11 ? '0' : dvEsperado === 10 ? 'K' : String(dvEsperado);
+    return dv === dvStr;
+}
+
+// ── Formatear RUT mientras escribe ──
+document.getElementById('rut').addEventListener('input', function () {
+    let val = this.value.replace(/[^0-9kK]/g, '').toUpperCase();
+    if (val.length > 1) val = val.slice(0, -1) + '-' + val.slice(-1);
+    this.value = val;
+});
+
+// ── Validación completa ──
+function validateForm() {
+    let valid = true;
+    const fields = ['rut','nombre','apellido','email','telefono','region','comuna','direccion','genero','password','password2'];
+    fields.forEach(f => { const el = document.getElementById('err-' + f); if(el) el.textContent = ''; });
+    document.getElementById('err-fecha').textContent    = '';
+    document.getElementById('err-terminos').textContent = '';
+
+    const rut       = document.getElementById('rut').value.trim();
+    const nombre    = document.getElementById('nombre').value.trim();
+    const apellido  = document.getElementById('apellido').value.trim();
+    const email     = document.getElementById('email').value.trim();
+    const telefono  = document.getElementById('telefono').value.trim();
+    const region    = document.getElementById('region').value;
+    const comuna    = document.getElementById('comuna').value.trim();
+    const direccion = document.getElementById('direccion').value.trim();
+    const genero    = document.getElementById('genero').value;
+    const fecha     = document.getElementById('fecha_nac').value;
+    const password  = document.getElementById('password').value;
+    const password2 = document.getElementById('password2').value;
+    const terminos  = document.getElementById('terminos').checked;
+
+    const err = (id, msg) => { document.getElementById('err-' + id).textContent = msg; valid = false; };
+
+    if (!validarRut(rut))                                          err('rut', 'RUT inválido. Ej: 12345678-9');
+    if (!nombre || nombre.length < 2)                             err('nombre', 'Ingresa tu nombre.');
+    if (!apellido || apellido.length < 2)                         err('apellido', 'Ingresa tu apellido.');
+    if (!genero)                                                   err('genero', 'Selecciona tu género.');
+    if (!fecha)                                                    { document.getElementById('err-fecha').textContent = 'Ingresa tu fecha de nacimiento.'; valid = false; }
+    else {
+        const hoy  = new Date();
+        const nac  = new Date(fecha);
+        const edad = Math.floor((hoy - nac) / (365.25 * 24 * 3600 * 1000));
+        if (edad < 18)                                             { document.getElementById('err-fecha').textContent = 'Debes ser mayor de 18 años.'; valid = false; }
+    }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))     err('email', 'Correo inválido.');
+    if (!telefono || !/^\+?56\d{9}$/.test(telefono.replace(/\s/g,'')))
+                                                                   err('telefono', 'Teléfono inválido. Ej: +56912345678');
+    if (!region)                                                   err('region', 'Selecciona tu región.');
+    if (!comuna || comuna.length < 2)                             err('comuna', 'Ingresa tu comuna.');
+    if (!direccion || direccion.length < 5)                       err('direccion', 'Ingresa tu dirección.');
+    if (!password || password.length < 8)                         err('password', 'Mínimo 8 caracteres.');
+    else if (!/[A-Z]/.test(password))                             err('password', 'Incluye al menos una mayúscula.');
+    else if (!/[0-9]/.test(password))                             err('password', 'Incluye al menos un número.');
+    if (password !== password2)                                    err('password2', 'Las contraseñas no coinciden.');
+    if (!terminos)                                                 { document.getElementById('err-terminos').textContent = 'Debes aceptar los términos.'; valid = false; }
+
+    return valid;
+}
+
+// ── Hash SHA-256 ──
+async function hashPassword(password) {
+    const data = new TextEncoder().encode(password);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ── Alerta ──
+function showAlert(msg, type = 'error') {
+    const el = document.getElementById('reg-alert');
+    el.className = 'login-alert ' + type;
+    el.textContent = msg;
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── Registro ──
+async function handleRegistro() {
+    if (!validateForm()) return;
+
+    const btn = document.getElementById('btn-registrar');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Registrando...';
+    document.getElementById('reg-alert').style.display = 'none';
+
+    try {
+        const email = document.getElementById('email').value.trim().toLowerCase();
+
+        // Verificar si ya existe
+        const { data: existe } = await sb.from('usuarios').select('id').eq('email', email).single();
+        if (existe) { showAlert('Este correo ya está registrado.'); return; }
+
+        const passwordHash = await hashPassword(document.getElementById('password').value);
+
+        const { error } = await sb.from('usuarios').insert([{
+            rut:       document.getElementById('rut').value.trim(),
+            nombre:    document.getElementById('nombre').value.trim(),
+            apellido:  document.getElementById('apellido').value.trim(),
+            email:     email,
+            telefono:  document.getElementById('telefono').value.trim(),
+            region:    document.getElementById('region').value,
+            comuna:    document.getElementById('comuna').value.trim(),
+            direccion: document.getElementById('direccion').value.trim(),
+            password_hash: passwordHash,
+        }]);
+
+        if (error) throw error;
+
+        showAlert('¡Cuenta creada con éxito! Redirigiendo al login...', 'success');
+        setTimeout(() => window.location.href = '/login/', 2000);
+
+    } catch (err) {
+        console.error(err);
+        if (err.code === '23505') showAlert('El RUT o correo ya está registrado.');
+        else showAlert('Error al registrar. Intenta nuevamente.');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-user-plus"></i> Crear Cuenta';
+    }
+}
+
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('medistock_cart') || '[]');
+    document.getElementById('cart-count').textContent = cart.length;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateCartCount();
+    if (window.WOW) new WOW().init();
+});
+</script>
+</body>
+</html>

@@ -1,4 +1,6 @@
 from pathlib import Path
+import dj_database_url
+import os
 
 # Base
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -53,10 +55,10 @@ WSGI_APPLICATION = 'medistock.wsgi.application'
 
 # DB
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+           default='postgresql://postgres.ljzypuiqebttfmmgzsqk:rZsix5iBIfwCKEuy@aws-1-us-east-1.pooler.supabase.com:5432/postgres'
+         
+    )
 }
 
 # Passwords
@@ -84,3 +86,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default ID
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SUPABASE_URL = os.environ.get('https://ljzypuiqebttfmmgzsqk.supabase.co/rest/v1/')
+SUPABASE_KEY = os.environ.get('sb_publishable_LM3_tYyHvBjdPQxqJwB-zA_u03mDQwR')
