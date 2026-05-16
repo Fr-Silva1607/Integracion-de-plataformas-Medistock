@@ -1,0 +1,367 @@
+{% extends "tienda/base.html" %}
+{% load static %}
+
+{% block title %}Pago - MediStock{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/css/pago.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="pago-section">
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="pago-header">
+            <h1><i class="fa fa-credit-card"></i> Finalizar Compra</h1>
+            <p>Completa los datos para procesar tu pago de forma segura</p>
+        </div>
+
+        <div class="row">
+
+            <!-- DATOS DE COMPRA -->
+            <div class="col-lg-8">
+
+                <!-- DATOS PERSONALES -->
+                <div class="pago-card">
+                    <h3><i class="fa fa-user"></i> Datos Personales</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Nombre completo</label>
+                                <input type="text" id="pago-nombre" class="form-control" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="pago-email" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DATOS DE ENVÍO -->
+                <div class="pago-card">
+                    <h3><i class="fa fa-truck"></i> Datos de Envío</h3>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Dirección de entrega *</label>
+                                <input type="text" id="pago-direccion" class="form-control" placeholder="Ej: Av. Providencia 1234, Dpto 502">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Ciudad *</label>
+                                <input type="text" id="pago-ciudad" class="form-control" placeholder="Ej: Santiago">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Región *</label>
+                                <input type="text" id="pago-region" class="form-control" placeholder="Ej: Metropolitana">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Código postal</label>
+                                <input type="text" id="pago-codigo-postal" class="form-control" placeholder="Ej: 7500000">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Teléfono *</label>
+                                <input type="tel" id="pago-telefono" class="form-control" placeholder="Ej: +56 9 1234 5678">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DATOS FACTURACIÓN (solo empresa) -->
+                <div class="pago-card" id="datos-facturacion" style="display: none;">
+                    <h3><i class="fa fa-file-text"></i> Datos de Facturación</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>RUT Empresa *</label>
+                                <input type="text" id="pago-rut" class="form-control" placeholder="76.123.456-7">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Razón Social *</label>
+                                <input type="text" id="pago-razon-social" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Giro</label>
+                                <input type="text" id="pago-giro" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MÉTODO DE PAGO -->
+                <div class="pago-card">
+                    <h3><i class="fa fa-credit-card"></i> Método de Pago</h3>
+
+                    <div class="metodo-pago-opciones">
+                        <label class="metodo-opcion active">
+                            <input type="radio" name="metodo-pago" value="transbank" checked>
+                            <div class="metodo-content">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Webpay_plus.svg/250px-Webpay_plus.svg.png"
+                                     alt="Webpay" class="metodo-logo" onerror="this.style.display='none'">
+                                <div>
+                                    <strong>Webpay Plus (Transbank)</strong>
+                                    <p>Paga con tarjeta de crédito, débito o RedCompra</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="alert alert-info mt-3">
+                        <i class="fa fa-info-circle"></i>
+                        <strong>Nota:</strong> Serás redirigido al portal seguro de Transbank para completar tu pago.
+                    </div>
+                </div>
+
+                <!-- TÉRMINOS -->
+                <div class="pago-card">
+                    <label class="terminos-check">
+                        <input type="checkbox" id="acepto-terminos">
+                        <span>
+                            Acepto los <a href="#">términos y condiciones</a> y la
+                            <a href="#">política de privacidad</a> de MediStock
+                        </span>
+                    </label>
+                </div>
+
+            </div>
+
+            <!-- RESUMEN -->
+            <div class="col-lg-4">
+                <div class="resumen-pago">
+                    <h4><i class="fa fa-shopping-bag"></i> Resumen de tu Compra</h4>
+
+                    <!-- Items -->
+                    <div class="resumen-items" id="resumen-items">
+                        <!-- Se cargan dinámicamente -->
+                    </div>
+
+                    <div class="resumen-divider"></div>
+
+                    <div class="resumen-item">
+                        <span>Subtotal:</span>
+                        <span id="resumen-subtotal">$0</span>
+                    </div>
+
+                    <div class="resumen-item">
+                        <span>IVA (19%):</span>
+                        <span id="resumen-iva">$0</span>
+                    </div>
+
+                    <div class="resumen-item">
+                        <span>Envío:</span>
+                        <span id="resumen-envio">Por calcular</span>
+                    </div>
+
+                    <div class="resumen-divider"></div>
+
+                    <div class="resumen-total">
+                        <span>Total a Pagar:</span>
+                        <span id="resumen-total">$0</span>
+                    </div>
+
+                    <!-- BOTÓN PAGAR -->
+                    <button id="btn-pagar" onclick="iniciarPagoTransbank()" class="btn btn-primary btn-block btn-lg btn-pagar">
+                        <i class="fa fa-lock"></i> Pagar con Transbank
+                    </button>
+
+                    <button onclick="window.location.href='/carrito/'" class="btn-volver">
+                        <i class="fa fa-arrow-left"></i> Volver al carrito
+                    </button>
+
+                    <div class="seguridad-info">
+                        <p><i class="fa fa-shield"></i> Pago 100% seguro</p>
+                        <p><i class="fa fa-lock"></i> Tus datos están protegidos</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const ordenId = '{{ orden_id }}';
+let ordenActual = null;
+
+// Cargar datos al iniciar
+document.addEventListener('DOMContentLoaded', function() {
+    if (!isLoggedIn()) {
+        alert('Debes iniciar sesión para acceder al pago');
+        window.location.href = '/login/';
+        return;
+    }
+    cargarDatosPago();
+});
+
+// Cargar datos del usuario y del carrito
+function cargarDatosPago() {
+    const user = getCurrentUser();
+    if (!user) return;
+
+    // Datos personales
+    document.getElementById('pago-nombre').value = user.nombre || '';
+    document.getElementById('pago-email').value = user.email || '';
+
+    // Mostrar facturación si es empresa
+    if (user.tipo === 'empresa') {
+        document.getElementById('datos-facturacion').style.display = 'block';
+        document.getElementById('pago-razon-social').value = user.nombre || '';
+    }
+
+    // Cargar items del carrito
+    const cart = loadCart();
+    if (cart.length === 0) {
+        alert('Tu carrito está vacío');
+        window.location.href = '/carrito/';
+        return;
+    }
+
+    mostrarResumen(cart);
+}
+
+// Mostrar resumen del carrito
+function mostrarResumen(cart) {
+    const itemsContainer = document.getElementById('resumen-items');
+
+    itemsContainer.innerHTML = cart.map(item => `
+        <div class="resumen-producto">
+            <img src="${item.imagen_url || '/static/assets/img/placeholder.jpg'}"
+                 alt="${item.nombre}" class="mini-img">
+            <div class="resumen-prod-info">
+                <strong>${item.nombre}</strong>
+                <small>${item.cantidad} x $${Number(item.precio).toLocaleString('es-CL')}</small>
+            </div>
+            <span class="prod-subtotal">$${Number(item.precio * item.cantidad).toLocaleString('es-CL')}</span>
+        </div>
+    `).join('');
+
+    // Calcular totales
+    const subtotal = cart.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+    const iva = subtotal * 0.19;
+    const total = subtotal + iva;
+
+    document.getElementById('resumen-subtotal').textContent = `$${subtotal.toLocaleString('es-CL')}`;
+    document.getElementById('resumen-iva').textContent = `$${iva.toLocaleString('es-CL')}`;
+    document.getElementById('resumen-total').textContent = `$${total.toLocaleString('es-CL')}`;
+
+    window.totalAPagar = total;
+}
+
+// Validar formulario
+function validarFormulario() {
+    const camposRequeridos = ['pago-direccion', 'pago-ciudad', 'pago-region', 'pago-telefono'];
+    const user = getCurrentUser();
+
+    if (user && user.tipo === 'empresa') {
+        camposRequeridos.push('pago-rut', 'pago-razon-social');
+    }
+
+    for (const id of camposRequeridos) {
+        const el = document.getElementById(id);
+        if (!el.value.trim()) {
+            alert(`Por favor completa el campo: ${el.previousElementSibling.textContent}`);
+            el.focus();
+            return false;
+        }
+    }
+
+    if (!document.getElementById('acepto-terminos').checked) {
+        alert('Debes aceptar los términos y condiciones para continuar');
+        return false;
+    }
+
+    return true;
+}
+
+// Iniciar el pago con Transbank
+// NOTA: Esta es la estructura preparada para Transbank.
+// Las credenciales reales se agregarán cuando estén disponibles.
+async function iniciarPagoTransbank() {
+    if (!validarFormulario()) return;
+
+    const btn = document.getElementById('btn-pagar');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Procesando...';
+
+    try {
+        const user = getCurrentUser();
+        const cart = loadCart();
+
+        // 1. Guardar orden en Supabase
+        const orden = {
+            usuario_id: user.tipo === 'usuario' ? user.id : null,
+            empresa_id: user.tipo === 'empresa' ? user.id : null,
+            estado: 'pendiente',
+            items: cart,
+            total_items: cart.length,
+            subtotal: cart.reduce((s, i) => s + (i.precio * i.cantidad), 0),
+            iva: cart.reduce((s, i) => s + (i.precio * i.cantidad), 0) * 0.19,
+            total: window.totalAPagar,
+            tipo_orden: user.tipo,
+            fecha_creacion: new Date().toISOString(),
+            metodo_pago: 'transbank',
+            direccion_envio: document.getElementById('pago-direccion').value,
+            ciudad: document.getElementById('pago-ciudad').value,
+            region: document.getElementById('pago-region').value,
+            telefono: document.getElementById('pago-telefono').value,
+        };
+
+        const { data, error } = await sb.from('ordenes').insert([orden]).select();
+
+        if (error) throw error;
+
+        // 2. INTEGRACIÓN TRANSBANK (preparada para activarse)
+        // Cuando se tengan las credenciales, descomentar y configurar:
+        //
+        // const response = await fetch('/api/transbank/create-transaction/', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify({
+        //         orden_id: data[0].id,
+        //         amount: window.totalAPagar,
+        //         return_url: window.location.origin + '/pago/confirmacion/'
+        //     })
+        // });
+        // const { url, token } = await response.json();
+        // window.location.href = `${url}?token_ws=${token}`;
+
+        // SIMULACIÓN temporal (mientras se integra Transbank):
+        alert('✓ Orden creada exitosamente.\n\nEn producción serás redirigido a Transbank para completar el pago.\n\nID de orden: ' + data[0].id);
+
+        // Limpiar carrito
+        const key = getCartKey();
+        if (key) localStorage.removeItem(key);
+
+        // Redirigir a perfil
+        setTimeout(() => {
+            window.location.href = '/perfil/';
+        }, 1500);
+
+    } catch (err) {
+        console.error('Error procesando pago:', err);
+        alert('Error al procesar el pago: ' + (err.message || 'Intenta nuevamente'));
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-lock"></i> Pagar con Transbank';
+    }
+}
+</script>
+{% endblock %}

@@ -1,81 +1,14 @@
+{% extends "tienda/base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MediStock — Login</title>
 
-    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Exo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'assets/fonts/font-awesome.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/fonts/themify-icons.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/fonts.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/animate.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/menu.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/responsive.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/index.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/login.css' %}">
-</head>
-<body data-spy="scroll" data-offset="80">
+{% block title %}MediStock — Login{% endblock %}
 
-<!-- PRELOADER -->
-<div class="preloader">
-    <div class="status"><div class="status-mes"></div></div>
-</div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/css/index.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/login.css' %}">
+{% endblock %}
 
-<!-- NAVBAR MÓVIL -->
-<div class="site-mobile-menu site-navbar-target">
-    <div class="site-mobile-menu-header">
-        <div class="site-mobile-menu-close mt-3">
-            <span class="icon-close2 js-menu-toggle"></span>
-        </div>
-    </div>
-    <div class="site-mobile-menu-body"></div>
-</div>
-
-<!-- NAVBAR -->
-<header class="site-navbar js-sticky-header site-navbar-target" role="banner">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-6 col-xl-2">
-                <h1 class="mb-0 site-logo">
-                    <a href="{% url 'home' %}">
-                        <img src="{% static 'assets/img/MediStock.logo.webp' %}" alt="MediStock">
-                    </a>
-                </h1>
-            </div>
-            <div class="col-12 col-md-8 d-none d-xl-block">
-                <nav class="site-navigation position-relative text-right" role="navigation">
-                    <ul class="site-menu main-menu js-clone-nav mr-auto d-none d-lg-block">
-                        <li><a href="{% url 'home' %}">Inicio</a></li>
-                        <li><a class="nav-link" href="{% url 'about' %}">Nosotros</a></li>
-                        <li><a class="nav-link" href="{% url 'productos' %}">Productos</a></li>
-                        <li><a class="nav-link" href="{% url 'contact' %}">Contáctanos</a></li>
-                    </ul>
-                </nav>
-            </div>
-            <div class="col-xl-2 d-none d-xl-flex justify-content-end align-items-center">
-                <div class="navbar-icons">
-                    <a href="/carrito/" title="Carrito">
-                        <i class="fa fa-shopping-cart"></i>
-                        <span class="cart-badge" id="cart-count">0</span>
-                    </a>
-                    <a href="/login/" class="btn-login">
-                        <i class="fa fa-user"></i> Login
-                    </a>
-                </div>
-            </div>
-            <div class="col-6 d-inline-block d-xl-none ml-md-0 py-3" style="position:relative;top:3px;">
-                <a href="#" class="site-menu-toggle js-menu-toggle float-right">
-                    <span class="icon-menu h3"></span>
-                </a>
-            </div>
-        </div>
-    </div>
-</header>
+{% block content %}
 
 <!-- LOGIN -->
 <section class="login-section">
@@ -132,35 +65,10 @@
     </div>
 </section>
 
-<!-- FOOTER -->
-<footer class="footer-area">
-    <div class="container">
-        <div class="row text-center">
-            <div class="col-lg-12">
-                <p class="footer_copyright">
-                    &copy; 2026 Comercializadora Medistock. Todos los derechos reservados.
-                    Desarrollado por <a href="https://github.com/Fr-Silva1607/Integracion-de-plataformas-Medistock.git" target="_blank">Equipo de Desarrollo</a>
-                </p>
-            </div>
-        </div>
-    </div>
-</footer>
+{% endblock %}
 
-<!-- SCRIPTS -->
-<script src="{% static 'assets/js/jquery-1.12.4.min.js' %}"></script>
-<script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
-<script src="{% static 'assets/js/menu.js' %}"></script>
-<script src="{% static 'assets/js/jquery.sticky.js' %}"></script>
-<script src="{% static 'assets/js/wow.min.js' %}"></script>
-<script src="{% static 'assets/js/scripts.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+{% block extra_js %}
 <script>
-
-const SUPABASE_URL = '{{ SUPABASE_URL }}';
-const SUPABASE_KEY = '{{ SUPABASE_KEY }}';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 // ── Mostrar/ocultar contraseña ──
 function togglePassword(inputId, icon) {
     const input = document.getElementById(inputId);
@@ -242,7 +150,7 @@ async function handleLogin() {
             return;
         }
 
-        // Verificar contraseña 
+        // Verificar contraseña
         const hashIngresado = await hashPassword(password);
         if (hashIngresado !== usuario.password_hash) {
             showAlert('Contraseña incorrecta.');
@@ -269,7 +177,7 @@ async function handleLogin() {
     }
 }
 
-// ── comprar bbdd ──
+// ── Hash de contraseña SHA-256 ──
 async function hashPassword(password) {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -278,21 +186,16 @@ async function hashPassword(password) {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// ── Carrito badge ──
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('medistock_cart') || '[]');
-    document.getElementById('cart-count').textContent = cart.length;
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-    updateCartCount();
-    if (window.WOW) new WOW().init();
-
     // Enter para login
     document.getElementById('login-password').addEventListener('keydown', e => {
         if (e.key === 'Enter') handleLogin();
     });
+
+    // Si ya está logeado, redirigir
+    if (typeof isLoggedIn === 'function' && isLoggedIn()) {
+        window.location.href = '/';
+    }
 });
 </script>
-</body>
-</html>
+{% endblock %}

@@ -1,0 +1,292 @@
+{% extends "tienda/base.html" %}
+{% load static %}
+
+{% block title %}Mi Perfil - MediStock{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/css/perfil.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="perfil-section">
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="perfil-header">
+            <div class="avatar-circle">
+                <i class="fa fa-user"></i>
+            </div>
+            <h1 id="perfil-nombre">Cargando...</h1>
+            <span class="badge-tipo" id="badge-tipo">Cargando</span>
+        </div>
+
+        <!-- TABS -->
+        <div class="perfil-tabs">
+            <button class="tab-btn active" onclick="cambiarTab('datos')" id="tab-datos">
+                <i class="fa fa-user-circle"></i> Mis Datos
+            </button>
+            <button class="tab-btn" onclick="cambiarTab('pedidos')" id="tab-pedidos">
+                <i class="fa fa-shopping-bag"></i> Mis Pedidos
+            </button>
+            <button class="tab-btn" id="tab-cotizaciones" onclick="cambiarTab('cotizaciones')" style="display: none;">
+                <i class="fa fa-file-pdf"></i> Mis Cotizaciones
+            </button>
+        </div>
+
+        <!-- CONTENIDO TABS -->
+        <div class="perfil-content">
+
+            <!-- DATOS PERSONALES -->
+            <div class="tab-content active" id="content-datos">
+                <h3><i class="fa fa-id-card"></i> Información Personal</h3>
+                <div class="info-grid" id="info-personal">
+                    <!-- Se carga dinámicamente -->
+                </div>
+            </div>
+
+            <!-- HISTORIAL PEDIDOS -->
+            <div class="tab-content" id="content-pedidos">
+                <h3><i class="fa fa-history"></i> Historial de Pedidos</h3>
+                <div id="lista-pedidos">
+                    <div class="loading-state">
+                        <i class="fa fa-spinner fa-spin"></i>
+                        <p>Cargando pedidos...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COTIZACIONES (solo empresa) -->
+            <div class="tab-content" id="content-cotizaciones">
+                <h3><i class="fa fa-file-text-o"></i> Cotizaciones Solicitadas</h3>
+                <div id="lista-cotizaciones">
+                    <div class="loading-state">
+                        <i class="fa fa-spinner fa-spin"></i>
+                        <p>Cargando cotizaciones...</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BOTÓN LOGOUT -->
+        <div class="perfil-actions">
+            <button onclick="logout()" class="btn-logout">
+                <i class="fa fa-sign-out"></i> Cerrar Sesión
+            </button>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let userData = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!isLoggedIn()) {
+        alert('Debes iniciar sesión para acceder a tu perfil');
+        window.location.href = '/login/';
+        return;
+    }
+    cargarPerfil();
+});
+
+// Cambiar entre tabs
+function cambiarTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('content-' + tab).classList.add('active');
+
+    if (tab === 'pedidos') cargarPedidos();
+    if (tab === 'cotizaciones') cargarCotizaciones();
+}
+
+// Cargar datos del perfil
+async function cargarPerfil() {
+    const user = getCurrentUser();
+    if (!user) return;
+
+    document.getElementById('perfil-nombre').textContent = user.nombre;
+
+    const badge = document.getElementById('badge-tipo');
+    if (user.tipo === 'empresa') {
+        badge.textContent = 'Empresa';
+        badge.classList.add('badge-empresa');
+        document.getElementById('tab-cotizaciones').style.display = 'inline-flex';
+    } else {
+        badge.textContent = 'Cliente';
+        badge.classList.add('badge-cliente');
+    }
+
+    // Cargar datos completos desde Supabase
+    try {
+        const tabla = user.tipo === 'empresa' ? 'empresas' : 'usuarios';
+        const { data, error } = await sb
+            .from(tabla)
+            .select('*')
+            .eq('id', user.id)
+            .single();
+
+        if (!error && data) {
+            userData = data;
+            mostrarInfoPersonal(data, user.tipo);
+        } else {
+            mostrarInfoPersonal(user, user.tipo);
+        }
+    } catch (err) {
+        console.error('Error cargando perfil:', err);
+        mostrarInfoPersonal(user, user.tipo);
+    }
+}
+
+// Mostrar info personal
+function mostrarInfoPersonal(data, tipo) {
+    const grid = document.getElementById('info-personal');
+
+    const campos = tipo === 'empresa' ? [
+        { label: 'Razón Social', valor: data.nombre_empresa || data.nombre, icono: 'fa-building' },
+        { label: 'Email', valor: data.email, icono: 'fa-envelope' },
+        { label: 'RUT Empresa', valor: data.rut || 'No registrado', icono: 'fa-id-card' },
+        { label: 'Teléfono', valor: data.telefono || 'No registrado', icono: 'fa-phone' },
+        { label: 'Región', valor: data.region || 'No registrada', icono: 'fa-map' },
+        { label: 'Comuna', valor: data.comuna || 'No registrada', icono: 'fa-map-pin' },
+        { label: 'Dirección', valor: data.direccion || 'No registrada', icono: 'fa-home' },
+    ] : [
+        { label: 'Nombre', valor: data.nombre, icono: 'fa-user' },
+        { label: 'Email', valor: data.email, icono: 'fa-envelope' },
+        { label: 'RUT', valor: data.rut || 'No registrado', icono: 'fa-id-card' },
+        { label: 'Teléfono', valor: data.telefono || 'No registrado', icono: 'fa-phone' },
+        { label: 'Dirección', valor: data.direccion || 'No registrada', icono: 'fa-home' },
+    ];
+
+    grid.innerHTML = campos.map(c => `
+        <div class="info-item">
+            <div class="info-icon"><i class="fa ${c.icono}"></i></div>
+            <div class="info-content">
+                <small>${c.label}</small>
+                <strong>${c.valor}</strong>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Cargar pedidos
+async function cargarPedidos() {
+    const user = getCurrentUser();
+    if (!user) return;
+
+    const container = document.getElementById('lista-pedidos');
+    container.innerHTML = '<div class="loading-state"><i class="fa fa-spinner fa-spin"></i><p>Cargando pedidos...</p></div>';
+
+    try {
+        const campo = user.tipo === 'empresa' ? 'empresa_id' : 'usuario_id';
+        const { data, error } = await sb
+            .from('ordenes')
+            .select('*')
+            .eq(campo, user.id)
+            .order('fecha_creacion', { ascending: false });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div class="empty-perfil">
+                    <i class="fa fa-shopping-bag"></i>
+                    <p>Aún no tienes pedidos</p>
+                    <a href="/productos/" class="btn btn-primary">Ver productos</a>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = data.map(orden => `
+            <div class="pedido-item">
+                <div class="pedido-header">
+                    <div>
+                        <strong>Orden #${orden.id}</strong>
+                        <small>${new Date(orden.fecha_creacion).toLocaleDateString('es-CL')}</small>
+                    </div>
+                    <span class="estado-badge estado-${orden.estado}">
+                        ${orden.estado.toUpperCase()}
+                    </span>
+                </div>
+                <div class="pedido-body">
+                    <p><strong>${orden.total_items}</strong> productos</p>
+                    <p class="pedido-total">Total: <strong>$${Number(orden.total).toLocaleString('es-CL')}</strong></p>
+                </div>
+            </div>
+        `).join('');
+    } catch (err) {
+        console.error('Error cargando pedidos:', err);
+        container.innerHTML = `
+            <div class="empty-perfil">
+                <i class="fa fa-exclamation-triangle"></i>
+                <p>No se pudieron cargar los pedidos</p>
+                <small>${err.message || 'Verifica que la tabla "ordenes" exista en Supabase'}</small>
+            </div>
+        `;
+    }
+}
+
+// Cargar cotizaciones (solo empresa)
+async function cargarCotizaciones() {
+    const user = getCurrentUser();
+    if (!user || user.tipo !== 'empresa') return;
+
+    const container = document.getElementById('lista-cotizaciones');
+    container.innerHTML = '<div class="loading-state"><i class="fa fa-spinner fa-spin"></i><p>Cargando cotizaciones...</p></div>';
+
+    try {
+        const { data, error } = await sb
+            .from('cotizaciones')
+            .select('*')
+            .eq('empresa_id', user.id)
+            .order('fecha_solicitud', { ascending: false });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div class="empty-perfil">
+                    <i class="fa fa-file-text-o"></i>
+                    <p>No has solicitado cotizaciones</p>
+                    <a href="/productos/" class="btn btn-primary">Ver productos</a>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = data.map(cot => `
+            <div class="pedido-item">
+                <div class="pedido-header">
+                    <div>
+                        <strong>Cotización #${cot.id}</strong>
+                        <small>${new Date(cot.fecha_solicitud).toLocaleDateString('es-CL')}</small>
+                    </div>
+                    <span class="estado-badge estado-${cot.estado}">
+                        ${cot.estado.toUpperCase()}
+                    </span>
+                </div>
+                <div class="pedido-body">
+                    <p>Total: <strong>$${Number(cot.total).toLocaleString('es-CL')}</strong></p>
+                </div>
+            </div>
+        `).join('');
+    } catch (err) {
+        console.error('Error cargando cotizaciones:', err);
+        container.innerHTML = `
+            <div class="empty-perfil">
+                <i class="fa fa-exclamation-triangle"></i>
+                <p>No se pudieron cargar las cotizaciones</p>
+                <small>${err.message || 'Verifica que la tabla "cotizaciones" exista en Supabase'}</small>
+            </div>
+        `;
+    }
+}
+</script>
+{% endblock %}

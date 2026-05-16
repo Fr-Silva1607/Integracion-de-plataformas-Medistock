@@ -1,0 +1,399 @@
+/* ── PÁGINA DE PERFIL ── */
+
+.perfil-section {
+    min-height: 80vh;
+    padding: 40px 0 60px 0;
+    background-color: #f8f9fa;
+}
+
+/* ── HEADER PERFIL ── */
+.perfil-header {
+    text-align: center;
+    background: white;
+    border-radius: 12px;
+    padding: 40px 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.avatar-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 50px;
+    margin: 0 auto 20px;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+}
+
+.perfil-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.badge-tipo {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-empresa {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+}
+
+.badge-cliente {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+}
+
+/* ── TABS ── */
+.perfil-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 0;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    background: white;
+    border: none;
+    padding: 14px 22px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #555;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-btn:hover {
+    color: #667eea;
+    background: #f8f9fa;
+}
+
+.tab-btn.active {
+    color: #667eea;
+    background: white;
+    border-bottom-color: #667eea;
+}
+
+/* ── CONTENT ── */
+.perfil-content {
+    background: white;
+    border-radius: 0 12px 12px 12px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    min-height: 400px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.4s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tab-content h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.tab-content h3 i {
+    color: #667eea;
+    margin-right: 10px;
+}
+
+/* ── INFO PERSONAL GRID ── */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.info-item:hover {
+    background: #f0f3ff;
+    transform: translateY(-2px);
+}
+
+.info-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.info-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.info-content small {
+    display: block;
+    color: #999;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+}
+
+.info-content strong {
+    display: block;
+    color: #333;
+    font-size: 15px;
+    word-break: break-word;
+}
+
+/* ── PEDIDOS ── */
+.pedido-item {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s;
+}
+
+.pedido-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.pedido-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.pedido-header strong {
+    display: block;
+    color: #333;
+    font-size: 15px;
+}
+
+.pedido-header small {
+    display: block;
+    color: #999;
+    font-size: 12px;
+    margin-top: 3px;
+}
+
+.estado-badge {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.estado-pendiente {
+    background: #fff8e1;
+    color: #f57f17;
+}
+
+.estado-pagada {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.estado-enviada {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.estado-completada {
+    background: #d4edda;
+    color: #155724;
+}
+
+.estado-cancelada {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.estado-solicitada {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.estado-aceptada {
+    background: #d4edda;
+    color: #155724;
+}
+
+.estado-rechazada {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.pedido-body {
+    color: #555;
+    font-size: 14px;
+}
+
+.pedido-body p {
+    margin: 5px 0;
+}
+
+.pedido-total {
+    color: #667eea;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* ── EMPTY STATE ── */
+.empty-perfil {
+    text-align: center;
+    padding: 50px 20px;
+    color: #999;
+}
+
+.empty-perfil i {
+    font-size: 50px;
+    color: #ddd;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.empty-perfil p {
+    font-size: 16px;
+    color: #777;
+    margin-bottom: 15px;
+}
+
+.empty-perfil small {
+    display: block;
+    color: #999;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+.empty-perfil .btn {
+    margin-top: 10px;
+}
+
+/* ── LOADING ── */
+.loading-state {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+.loading-state i {
+    font-size: 30px;
+    color: #667eea;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* ── ACCIONES ── */
+.perfil-actions {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.btn-logout {
+    padding: 12px 30px;
+    background: white;
+    color: #e74c3c;
+    border: 2px solid #e74c3c;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-logout:hover {
+    background: #e74c3c;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.btn-logout i {
+    margin-right: 8px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+    .perfil-header h1 {
+        font-size: 22px;
+    }
+
+    .avatar-circle {
+        width: 80px;
+        height: 80px;
+        font-size: 40px;
+    }
+
+    .perfil-content {
+        padding: 20px 15px;
+        border-radius: 8px;
+    }
+
+    .tab-btn {
+        flex: 1;
+        min-width: 100px;
+        padding: 12px 10px;
+        font-size: 13px;
+        justify-content: center;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .info-item {
+        padding: 15px;
+    }
+
+    .pedido-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

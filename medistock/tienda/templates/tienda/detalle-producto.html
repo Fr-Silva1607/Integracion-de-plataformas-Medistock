@@ -1,0 +1,401 @@
+{% extends "tienda/base.html" %}
+{% load static %}
+
+{% block title %}Detalle Producto - MediStock{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/css/detalle-producto.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="detalle-section">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'productos' %}">Productos</a></li>
+                <li class="breadcrumb-item active" id="breadcrumb-nombre">Producto</li>
+            </ol>
+        </nav>
+
+        <!-- Contenedor principal -->
+        <div class="row detalle-container">
+
+            <!-- Galería de imágenes (izquierda) -->
+            <div class="col-lg-6 galeria-section">
+                <div class="galeria-principal">
+                    <img id="imagen-principal" src="{% static 'assets/img/placeholder.jpg' %}" alt="Producto">
+                    <span class="etiqueta-precio" id="etiqueta-precio" style="display: none;"></span>
+                </div>
+                <div class="galeria-thumbnails">
+                    <!-- Las thumbnails se cargarán con JS si hay múltiples imágenes -->
+                </div>
+            </div>
+
+            <!-- Información del producto (derecha) -->
+            <div class="col-lg-6 info-section">
+
+                <!-- Categoría y nombre -->
+                <span class="categoria" id="categoria">Categoría</span>
+                <h1 class="producto-nombre" id="producto-nombre">Cargando...</h1>
+
+                <!-- Rating y reseñas -->
+                <div class="rating-section">
+                    <div class="stars" id="rating-stars">
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                    </div>
+                    <span class="rating-text" id="rating-text">(0 reseñas)</span>
+                </div>
+
+                <!-- Stock -->
+                <div class="stock-info">
+                    <span id="stock-text" class="stock-disponible">Stock disponible</span>
+                </div>
+
+                <!-- Precio -->
+                <div class="precio-section">
+                    <span class="precio" id="precio">$0</span>
+                    <span class="precio-anterior" id="precio-anterior" style="display: none;"></span>
+                </div>
+
+                <!-- Descripción -->
+                <div class="descripcion-section">
+                    <p id="descripcion">Cargando descripción...</p>
+                </div>
+
+                <!-- Especificaciones -->
+                <div class="especificaciones-section">
+                    <h5>Especificaciones</h5>
+                    <table class="tabla-especificaciones">
+                        <tbody id="especificaciones-tabla">
+                            <tr>
+                                <td>Cargando...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Cantidad -->
+                <div class="cantidad-section">
+                    <label>Cantidad:</label>
+                    <div class="cantidad-input">
+                        <button onclick="decrementarCantidad()" class="btn-cantidad">-</button>
+                        <input type="number" id="cantidad" value="1" min="1" readonly>
+                        <button onclick="incrementarCantidad()" class="btn-cantidad">+</button>
+                    </div>
+                </div>
+
+                <!-- Botones de compra -->
+                <div class="botones-compra">
+                    <button class="btn-compra btn-personal" id="btn-compra-personal" onclick="agregarAlCarritoPersonal()">
+                        <i class="fa fa-shopping-cart"></i> Compra Personal
+                    </button>
+                    <button class="btn-compra btn-empresa" id="btn-compra-empresa" onclick="agregarAlCarritoEmpresa()">
+                        <i class="fa fa-building"></i> Compra Empresa
+                    </button>
+                </div>
+
+                <!-- Información adicional -->
+                <div class="info-adicional">
+                    <p><i class="fa fa-check-circle"></i> Envío seguro y rápido</p>
+                    <p><i class="fa fa-headphones"></i> Soporte técnico disponible</p>
+                    <p><i class="fa fa-undo"></i> Política de devolución flexible</p>
+                </div>
+
+                <!-- Compartir -->
+                <div class="compartir-section">
+                    <span>Compartir:</span>
+                    <a href="#" class="btn-compartir"><i class="fa fa-facebook"></i></a>
+                    <a href="#" class="btn-compartir"><i class="fa fa-twitter"></i></a>
+                    <a href="#" class="btn-compartir"><i class="fa fa-whatsapp"></i></a>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Reseñas -->
+        <div class="row reseñas-section">
+            <div class="col-lg-8">
+                <h3>Reseñas de Clientes</h3>
+
+                <div id="resenas-lista">
+                    <!-- Las reseñas se cargarán aquí -->
+                </div>
+
+            </div>
+
+            <!-- Formulario de reseña -->
+            <div class="col-lg-4">
+                <div class="formulario-resena">
+                    <h5>Dejar una reseña</h5>
+                    <p class="texto-pequeno">Tu reseña es importante para otros clientes</p>
+                    <form>
+                        <div class="form-group">
+                            <label>Calificación:</label>
+                            <div class="stars-input">
+                                <i class="fa fa-star" onclick="setRating(1)" data-rating="1"></i>
+                                <i class="fa fa-star" onclick="setRating(2)" data-rating="2"></i>
+                                <i class="fa fa-star" onclick="setRating(3)" data-rating="3"></i>
+                                <i class="fa fa-star" onclick="setRating(4)" data-rating="4"></i>
+                                <i class="fa fa-star" onclick="setRating(5)" data-rating="5"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre:</label>
+                            <input type="text" class="form-control" placeholder="Tu nombre">
+                        </div>
+                        <div class="form-group">
+                            <label>Comentario:</label>
+                            <textarea class="form-control" rows="3" placeholder="Tu opinión..."></textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-block">Enviar Reseña</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Productos Relacionados -->
+        <div class="row">
+            <div class="col-12">
+                <h3>Productos Relacionados</h3>
+                <div class="productos-relacionados" id="productos-relacionados">
+                    <!-- Se cargarán dinámicamente -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- IMPORTACIÓN DEL SDK DE SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="{% static 'assets/js/detalle-producto.js' %}"></script>
+
+<script>
+// CONFIGURAR E INICIALIZAR CREDENCIALES EVITANDO DECLARACIONES DUPLICADAS
+if (!window.sb) {
+    const supabaseUrl = "https://ljzypuiqebttfmmgzsqk.supabase.co"; 
+    const supabaseKey = "sb_publishable_LM3_tYyHvBjdPQxqJwB-zA_u03mDQwR";
+    window.sb = supabase.createClient(supabaseUrl, supabaseKey);
+}
+
+// Obtener ID del producto desde el contexto de Django o los parámetros URL
+const urlParams = new URLSearchParams(window.location.search);
+const productoId = urlParams.get('id') || '{{ producto_id }}';
+
+// Guardamos el objeto del producto actual de forma segura para usarlo en el carrito
+window.currentProducto = null;
+window.currentRatingSelection = 5; // Estado inicial del formulario de reseñas
+
+// ── Formato de precio en CLP ──
+function formatPrice(price) {
+    return '$ ' + Number(price).toLocaleString('es-CL');
+}
+
+// ── Cargar Reseñas Genéricas Estáticas ──
+function cargarResenasEstaticas() {
+    const resenasLista = document.getElementById('resenas-lista');
+    const ratingText = document.getElementById('rating-text');
+    const ratingStars = document.getElementById('rating-stars');
+    
+    if (!resenasLista) return;
+
+    // Listado fijo de opiniones que le sirven a cualquier insumo/producto médico
+    const opinionesGenericas = [
+        { autor: "Carlos Mendoza", fecha: "12/04/2026", estrellas: 5, comentario: "Excelente calidad del producto. Cumple totalmente con las especificaciones técnicas y los estándares que requeríamos. El empaque venía perfectamente sellado." },
+        { autor: "Dra. Elena Silva", fecha: "28/03/2026", estrellas: 4, comentario: "Muy buen insumo, material resistente y confiable para el uso diario en clínica. Volveremos a comprar lotes adicionales pronto." },
+        { autor: "Marta Vivanco", fecha: "05/03/2026", estrellas: 5, comentario: "Llegó súper rápido y el precio es de lo mejor que encontré en el mercado de distribución. Muy conforme con la gestión de MediStock." }
+    ];
+
+    // Inyectar el HTML de las reseñas
+    resenasLista.innerHTML = opinionesGenericas.map(r => `
+        <div class="resena-item" style="border-bottom: 1px solid #eee; padding: 15px 0; text-align: left;">
+            <div class="resena-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <strong style="color: #333;">${r.autor}</strong>
+                <span style="font-size: 0.85rem; color: #999;">${r.fecha}</span>
+            </div>
+            <div class="resena-stars" style="color: #f1c40f; margin-bottom: 8px;">
+                ${'<i class="fa fa-star"></i>'.repeat(r.estrellas)}${'<i class="fa fa-star-o"></i>'.repeat(5 - r.estrellas)}
+            </div>
+            <p style="color: #666; font-size: 0.95rem; line-height: 1.4; margin: 0;">"${r.comentario}"</p>
+        </div>
+    `).join('');
+
+    // Actualizar los contadores globales de la cabecera del detalle
+    if (ratingText) ratingText.textContent = `(${opinionesGenericas.length} reseñas)`;
+    if (ratingStars) {
+        ratingStars.innerHTML = '<i class="fa fa-star" style="color: #f1c40f;"></i>'.repeat(5);
+    }
+}
+
+// ── Manejo de Cantidades ──
+function decrementarCantidad() {
+    const input = document.getElementById('cantidad');
+    if (input && parseInt(input.value) > 1) {
+        input.value = parseInt(input.value) - 1;
+    }
+}
+
+function incrementarCantidad() {
+    const input = document.getElementById('cantidad');
+    if (input) {
+        // Podríamos limitar con el stock real si estuviera disponible, por ahora libre
+        input.value = parseInt(input.value) + 1;
+    }
+}
+
+// ── Interactividad del Formulario de Reseñas (Estrellas visuales) ──
+function setRating(rating) {
+    window.currentRatingSelection = rating;
+    const stars = document.querySelectorAll('.stars-input i');
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.style.color = '#f1c40f'; // Estrella dorada
+        } else {
+            star.style.color = '#ccc';    // Estrella gris
+        }
+    });
+}
+
+// ── Cargar Datos del Producto desde Supabase ──
+async function loadProducto(id) {
+    try {
+        if (!window.sb) {
+            console.error("Supabase no inicializado en window.");
+            return;
+        }
+
+        // Buscar el registro exacto por ID
+        const { data: producto, error } = await window.sb
+            .from('productos')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (error) throw error;
+        if (!producto) {
+            alert("El producto seleccionado no existe.");
+            window.location.href = '{% url "productos" %}';
+            return;
+        }
+
+        // Guardamos en memoria global de la vista
+        window.currentProducto = producto;
+
+        // --- INTERSECTAR Y MAPEAR AL DOM ---
+        document.getElementById('producto-nombre').textContent = producto.nombre || 'Producto';
+        document.getElementById('breadcrumb-nombre').textContent = producto.nombre || 'Producto';
+        document.getElementById('categoria').textContent = (producto.categoria || 'General').toUpperCase();
+        document.getElementById('descripcion').textContent = producto.descripcion || 'Sin descripción disponible para este artículo.';
+        document.getElementById('precio').textContent = formatPrice(producto.precio || 0);
+
+        // Imagen principal
+        if (producto.imagen_url) {
+            document.getElementById('imagen-principal').src = producto.imagen_url;
+            document.getElementById('imagen-principal').alt = producto.nombre;
+        }
+
+        // Configuración y despliegue del stock
+        const stockText = document.getElementById('stock-text');
+        const cant = parseInt(producto.cantidad) || 0;
+        if (stockText) {
+            if (cant <= 0) {
+                stockText.textContent = "Agotado temporalmente";
+                stockText.className = "stock-agotado";
+                stockText.style.color = "#e74c3c";
+                // Deshabilitar botones de compra si no hay stock
+                document.getElementById('btn-compra-personal').disabled = true;
+                document.getElementById('btn-compra-empresa').disabled = true;
+            } else if (cant <= 5) {
+                stockText.textContent = `¡Últimas unidades disponibles! (Stock: ${cant})`;
+                stockText.className = "stock-bajo";
+                stockText.style.color = "#f39c12";
+            } else {
+                stockText.textContent = `Stock disponible (${cant} unidades)`;
+                stockText.className = "stock-disponible";
+                stockText.style.color = "#27ae60";
+            }
+        }
+
+        // Renderizar tabla de especificaciones dinámicas básicas
+        const tabla = document.getElementById('especificaciones-tabla');
+        if (tabla) {
+            tabla.innerHTML = `
+                <tr><td style="font-weight:bold; width: 40%; padding: 8px 0;">Código de Producto:</td><td>MED-${producto.id}</td></tr>
+                <tr><td style="font-weight:bold; padding: 8px 0;">Tipo de Venta:</td><td>${(producto.tipo_venta || 'libre').toUpperCase()}</td></tr>
+                <tr><td style="font-weight:bold; padding: 8px 0;">Categoría de Control:</td><td>${producto.categoria || 'Estándar'}</td></tr>
+                <tr><td style="font-weight:bold; padding: 8px 0;">Distribución:</td><td>MediStock Central Certificado</td></tr>
+            `;
+        }
+
+        // Mostrar Badge de Precio Adicional/Especial si existe campo dedicado
+        if (producto.etiqueta_precio) {
+            const etiqueta = document.getElementById('etiqueta-precio');
+            if (etiqueta) {
+                etiqueta.textContent = producto.etiqueta_precio;
+                etiqueta.style.display = 'inline-block';
+            }
+        }
+
+        // Cargar las opiniones simuladas compartidas
+        cargarResenasEstaticas();
+
+    } catch (err) {
+        console.error('Error recuperando los detalles del producto:', err);
+        alert('No se pudo establecer la conexión con la base de datos para leer el producto.');
+    }
+}
+
+// ── Simulación de acciones para Añadir al Carrito ──
+function agregarAlCarritoPersonal() {
+    if (!window.currentProducto) return;
+    const cantidad = parseInt(document.getElementById('cantidad').value) || 1;
+    
+    if (window.currentProducto.tipo_venta === 'empresa') {
+        alert('Atención: Este producto requiere una cuenta empresarial corporativa validada.');
+        return;
+    }
+
+    if (typeof addToCart === 'function') {
+        // Si tu script global maneja arrays de objetos con cantidad
+        addToCart({ ...window.currentProducto, cantidadSeleccionada: cantidad });
+    } else {
+        alert(`Éxito: Se añadieron ${cantidad} unidad(es) de "${window.currentProducto.nombre}" al Carrito Personal.`);
+    }
+}
+
+function agregarAlCarritoEmpresa() {
+    if (!window.currentProducto) return;
+    const cantidad = parseInt(document.getElementById('cantidad').value) || 1;
+
+    if (typeof addToCart === 'function') {
+        addToCart({ ...window.currentProducto, cantidadSeleccionada: cantidad, modo: 'empresa' });
+    } else {
+        alert(`Éxito corporativo: Se añadieron ${cantidad} unidad(es) de "${window.currentProducto.nombre}" al Carrito de Empresa.`);
+    }
+}
+
+// Lanzar la carga controlando los flujos del DOM
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar colores del control de estrellas en el HTML de opiniones
+    setRating(5);
+
+    if (productoId) {
+        loadProducto(parseInt(productoId));
+    } else {
+        alert('ID de Producto no especificado en los parámetros.');
+        window.location.href = '{% url "productos" %}';
+    }
+});
+</script>
+{% endblock %}

@@ -1,9 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-	{% load static %}
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -284,140 +282,158 @@
 <script src="{% static 'assets/js/slick.min.js' %}"></script>
 <script src="{% static 'assets/js/jquery.mixitup.js' %}"></script>
 <script src="{% static 'assets/js/jquery.prettyPhoto.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stellar.js/0.6.2/jquery.stellar.min.js"></script>
 <script src="{% static 'assets/js/wow.min.js' %}"></script>
 <script src="{% static 'assets/js/scripts.js' %}"></script>
 
-<!-- Supabase SDK -->
+{% block extra_js %}
+<!-- SDK de Supabase (Carga limpia una sola vez) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-// ════════════════════════════════════════════════
-//  CONFIGURACIÓN SUPABASE
-//  Reemplaza con tus credenciales del proyecto
-// ════════════════════════════════════════════════
-const SUPABASE_URL = '{{ SUPABASE_URL }}';
-const SUPABASE_KEY = '{{ SUPABASE_KEY }}';
+(function() {
+    // 1. Credenciales bien definidas dentro del scope seguro
+    const SUPABASE_URL = "https://ljzypuiqebttfmmgzsqk.supabase.co"; 
+    const SUPABASE_KEY = "sb_publishable_LM3_tYyHvBjdPQxqJwB-zA_u03mDQwR";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // 2. Control anti-duplicación usando el objeto window
+    if (!window.supabaseClient) {
+        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
 
-// ── Formato de precio en pesos chilenos ──
-function formatPrice(price) {
-    return '$ ' + Number(price).toLocaleString('es-CL');
-}
+    // 3. Asignación a la constante local segura
+    const supabase = window.supabaseClient;
 
-// ── Badge según tipo de venta ──
-// Campo "tipo_venta" en BD: 'libre' | 'receta' | 'controlado'
-function getBadge(tipo) {
-    const map = {
-        'receta':  ['badge-prescription', 'VENTA BAJO RECETA'],
-        'empresa': ['badge-controlled',   'SOLO EMPRESAS'],
-        'libre':   ['badge-free',         'VENTA LIBRE'],
-    };
-    const [cls, label] = map[tipo] || ['badge-free', 'VENTA LIBRE'];
-    return `<span class="product-badge ${cls}">${label}</span>`;
-}
+    let allProducts = [];
 
+    // ── Formato de precio en pesos chilenos ──
+    function formatPrice(price) {
+        return '$ ' + Number(price).toLocaleString('es-CL');
+    }
 
-function renderCard(p) {
-    const img = p.imagen_url || 'https://via.placeholder.com/280x200?text=Sin+imagen';
-    return `
-        <div class="product-card wow fadeInUp" data-cat="${p.categoria || 'general'}">
-            <a href="/producto/${p.id}/">
-                <img src="${img}" alt="${p.nombre}" loading="lazy">
-            </a>
-            <div class="product-card-body">
-                ${getBadge(p.tipo_venta)}
-                <h4><a href="/producto/${p.id}/">${p.nombre}</a></h4>
-                <p>${p.descripcion || ''}</p>
-            </div>
-            <div class="product-price">
-                <span class="label">${p.etiqueta_precio || 'Precio'}</span>
-                <span class="amount">${formatPrice(p.precio)}</span>
-            </div>
-        </div>`;
-}
+    // ── Badge según tipo de venta ──
+    function getBadge(tipo) {
+        const map = {
+            'receta':   ['badge-prescription', 'VENTA BAJO RECETA'],
+            'empresa':  ['badge-controlled',   'SOLO EMPRESAS'],
+            'libre':    ['badge-free',         'VENTA LIBRE'],
+        };
+        const [cls, label] = map[tipo] || ['badge-free', 'VENTA LIBRE'];
+        return `<span class="product-badge ${cls}">${label}</span>`;
+    }
 
-// ── Filtros por categoría ──
-let allProducts = [];
-
-function buildCategoryTabs(products) {
-    const cats = [...new Set(products.map(p => p.categoria).filter(Boolean))];
-    const tabsEl = document.getElementById('category-tabs');
-    cats.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.className = 'cat-btn';
-        btn.dataset.cat = cat;
-        btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
-        tabsEl.appendChild(btn);
-    });
-}
-
-function filterProducts(cat) {
-    const filtered = cat === 'all'
-        ? allProducts
-        : allProducts.filter(p => p.categoria === cat);
-
-    document.getElementById('products-container').innerHTML = filtered.length
-        ? `<div class="products-grid">${filtered.map(renderCard).join('')}</div>`
-        : '<div class="error-state"><p>No hay productos en esta categoría.</p></div>';
-
-    if (window.WOW) new WOW({ live: false }).init();
-}
-
-document.getElementById('category-tabs').addEventListener('click', e => {
-    if (!e.target.classList.contains('cat-btn')) return;
-    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-    e.target.classList.add('active');
-    filterProducts(e.target.dataset.cat);
-});
-
-// ── Carga productos desde Supabase ──
-async function loadProducts() {
-    const container = document.getElementById('products-container');
-    try {
-        const { data: products, error } = await supabase
-            .from('productos')
-            .select('*')
-            .order('categoria')
-            .limit(50);
-
-        if (error) throw error;
-
-        if (!products || products.length === 0) {
-            container.innerHTML = '<div class="error-state"><p>No se encontraron productos.</p></div>';
-            return;
-        }
-
-        allProducts = products;
-        buildCategoryTabs(products);
-        container.innerHTML = `<div class="products-grid">${products.map(renderCard).join('')}</div>`;
-        if (window.WOW) new WOW({ live: false }).init();
-
-    } catch (err) {
-        console.error('Error cargando productos:', err);
-        container.innerHTML = `
-            <div class="error-state">
-                <i class="fa fa-exclamation-triangle fa-2x"></i>
-                <p>No se pudieron cargar los productos.<br>
-                   <small>${err.message || 'Error de conexión con Supabase'}</small>
-                </p>
+    // ── Renderizado de la tarjeta individual ──
+    function renderCard(p) {
+        const img = p.imagen_url || 'https://via.placeholder.com/280x200?text=Sin+imagen';
+        return `
+            <div class="product-card wow fadeInUp" data-cat="${p.categoria || 'general'}">
+                <a href="/producto/${p.id}/">
+                    <img src="${img}" alt="${p.nombre}" loading="lazy">
+                </a>
+                <div class="product-card-body">
+                    ${getBadge(p.tipo_venta)}
+                    <h4><a href="/producto/${p.id}/">${p.nombre}</a></h4>
+                    <p>${p.descripcion || ''}</p>
+                </div>
+                <div class="product-price">
+                    <span class="label">${p.etiqueta_precio || 'Precio'}</span>
+                    <span class="amount">${formatPrice(p.precio)}</span>
+                </div>
             </div>`;
     }
-}
 
-// ── Carrito: badge con conteo desde localStorage ──
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('medistock_cart') || '[]');
-    document.getElementById('cart-count').textContent = cart.length;
-}
+    // ── Filtros por categoría dinámicos ──
+    function buildCategoryTabs(products) {
+        const cats = [...new Set(products.map(p => p.categoria ? p.categoria.trim().toLowerCase() : ''))].filter(Boolean);
+        const tabsEl = document.getElementById('category-tabs');
+        
+        tabsEl.innerHTML = '<button class="cat-btn active" data-cat="all">Todos</button>';
+        
+        cats.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'cat-btn';
+            btn.dataset.cat = cat;
+            btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+            tabsEl.appendChild(btn);
+        });
+    }
 
-// ── Init ──
-document.addEventListener('DOMContentLoaded', () => {
-    loadProducts();
-    updateCartCount();
-    if (window.WOW) new WOW().init();
-});
+    function filterProducts(cat) {
+        const targetCat = cat.trim().toLowerCase();
+
+        const filtered = targetCat === 'all'
+            ? allProducts
+            : allProducts.filter(p => p.categoria && p.categoria.trim().toLowerCase() === targetCat);
+
+        const container = document.getElementById('products-container');
+        
+        container.innerHTML = filtered.length
+            ? `<div class="products-grid">${filtered.map(renderCard).join('')}</div>`
+            : '<div class="error-state"><p>No hay productos en esta categoría.</p></div>';
+
+        if (window.WOW) new WOW({ live: false }).init();
+    }
+
+    // Escuchador de eventos de los botones de filtro
+    document.getElementById('category-tabs').addEventListener('click', e => {
+        if (!e.target.classList.contains('cat-btn')) return;
+        
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        filterProducts(e.target.dataset.cat);
+    });
+
+    // ── Carga única y limpia desde Supabase ──
+    async function loadProducts() {
+        const container = document.getElementById('products-container');
+        try {
+            const { data: products, error } = await supabase
+                .from('productos')
+                .select('*')
+                .order('categoria')
+                .limit(50);
+
+            if (error) throw error;
+
+            if (!products || products.length === 0) {
+                container.innerHTML = '<div class="error-state"><p>No se encontraron productos en la base de datos.</p></div>';
+                return;
+            }
+
+            allProducts = products; 
+            buildCategoryTabs(products);
+            
+            container.innerHTML = `<div class="products-grid">${products.map(renderCard).join('')}</div>`;
+            
+            if (window.WOW) new WOW({ live: false }).init();
+
+        } catch (err) {
+            console.error('Error cargando productos:', err);
+            container.innerHTML = `
+                <div class="error-state">
+                    <i class="fa fa-exclamation-triangle fa-2x"></i>
+                    <p>No se pudieron cargar los productos.<br>
+                    <small>${err.message || 'Error de conexión con Supabase'}</small>
+                    </p>
+                </div>`;
+        }
+    }
+
+    // ── Carrito: conteo desde localStorage ──
+    function updateCartCount() {
+        const cart = JSON.parse(localStorage.getItem('medistock_cart') || '[]');
+        document.getElementById('cart-count').textContent = cart.length;
+    }
+
+    // ── Inicialización ──
+    document.addEventListener('DOMContentLoaded', () => {
+        loadProducts();
+        updateCartCount();
+        if (window.WOW) new WOW().init();
+    });
+})(); // <-- Ahora la IIFE cierra correctamente al final de todo el bloque lógico
 </script>
-
+{% endblock %}
 </body>
 </html>

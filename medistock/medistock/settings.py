@@ -87,5 +87,5 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Default ID
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-SUPABASE_URL = os.environ.get('https://ljzypuiqebttfmmgzsqk.supabase.co/rest/v1/')
-SUPABASE_KEY = os.environ.get('sb_publishable_LM3_tYyHvBjdPQxqJwB-zA_u03mDQwR')
+SUPABASE_URL = 'https://ljzypuiqebttfmmgzsqk.supabase.co'
+SUPABASE_KEY = 'sb_publishable_LM3_tYyHvBjdPQxqJwB-zA_u03mDQwR'

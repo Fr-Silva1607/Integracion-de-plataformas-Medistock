@@ -1,0 +1,33 @@
+{% extends "tienda/base.html" %}
+{% load static %}
+
+{% block title %}Nosotros - MediStock{% endblock %}
+
+{% block content %}
+
+<section class="section-padding" style="min-height: 60vh; padding-top: 80px;">
+    <div class="container">
+        <div class="section-title text-center">
+            <h2>SOBRE NOSOTROS</h2>
+            <div></div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-lg-10 offset-lg-1 text-center">
+                <p style="font-size: 16px; line-height: 1.8; color: #555;">
+                    En <strong>MediStock</strong> somos una comercializadora especializada en productos médicos
+                    y farmacéuticos. Nos enfocamos en ofrecer insumos de la más alta calidad, con un servicio
+                    rápido, seguro y al mejor precio del mercado.
+                </p>
+                <p style="font-size: 16px; line-height: 1.8; color: #555; margin-top: 20px;">
+                    Trabajamos con hospitales, clínicas, farmacias y particulares, brindando soluciones
+                    integrales para el cuidado de la salud.
+                </p>
+                <div class="mt-4">
+                    <a href="{% url 'productos' %}" class="btn btn-primary btn-lg">Ver Nuestros Productos</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
