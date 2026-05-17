@@ -83,14 +83,33 @@ function displayCarritoPage() {
     calculateTotalsCarrito();
 }
 
-// Incrementar cantidad de un item
-function incrementarCantidadCarrito(idx) {
+// Incrementar cantidad de un item (con validación de stock)
+async function incrementarCantidadCarrito(idx) {
     let cart = loadCart();
-    if (idx >= 0 && idx < cart.length) {
-        cart[idx].cantidad++;
-        saveCart(cart);
-        displayCarritoPage();
+    if (idx < 0 || idx >= cart.length) return;
+
+    // Validar stock disponible en Supabase
+    const item = cart[idx];
+    try {
+        if (window.sb) {
+            const { data: producto } = await window.sb
+                .from('productos')
+                .select('cantidad')
+                .eq('id', item.id)
+                .single();
+
+            if (producto && cart[idx].cantidad >= producto.cantidad) {
+                alert(`No hay más stock disponible. Stock máximo: ${producto.cantidad}`);
+                return;
+            }
+        }
+    } catch (err) {
+        console.warn('No se pudo validar stock, continuando:', err);
     }
+
+    cart[idx].cantidad++;
+    saveCart(cart);
+    displayCarritoPage();
 }
 
 // Decrementar cantidad de un item
@@ -100,7 +119,77 @@ function decrementarCantidadCarrito(idx) {
         cart[idx].cantidad--;
         saveCart(cart);
         displayCarritoPage();
+    } else if (cart[idx] && cart[idx].cantidad === 1) {
+        if (confirm('¿Deseas eliminar este producto del carrito?')) {
+            cart.splice(idx, 1);
+            saveCart(cart);
+            displayCarritoPage();
+        }
     }
+}
+
+// Validar el carrito antes de proceder al pago
+async function validarCarrito() {
+    const cart = loadCart();
+    const user = getCurrentUser();
+
+    // 1. Validar que hay items
+    if (cart.length === 0) {
+        alert('Tu carrito está vacío');
+        return false;
+    }
+
+    // 2. Validar que hay usuario logeado
+    if (!user) {
+        alert('Debes iniciar sesión para continuar');
+        window.location.href = '/login/';
+        return false;
+    }
+
+    // 3. Validar cantidades positivas y precios > 0
+    for (const item of cart) {
+        if (!item.cantidad || item.cantidad < 1) {
+            alert(`Cantidad inválida para "${item.nombre}"`);
+            return false;
+        }
+        if (!item.precio || item.precio <= 0) {
+            alert(`Precio inválido para "${item.nombre}"`);
+            return false;
+        }
+    }
+
+    // 4. Validar stock y tipo_venta vs usuario en Supabase
+    try {
+        if (window.sb) {
+            const ids = cart.map(i => i.id);
+            const { data: productos } = await window.sb
+                .from('productos')
+                .select('id, nombre, cantidad, tipo_venta')
+                .in('id', ids);
+
+            if (productos) {
+                for (const item of cart) {
+                    const prod = productos.find(p => p.id === item.id);
+                    if (!prod) {
+                        alert(`El producto "${item.nombre}" ya no está disponible`);
+                        return false;
+                    }
+                    if (item.cantidad > prod.cantidad) {
+                        alert(`Solo quedan ${prod.cantidad} unidades de "${item.nombre}". Ajusta tu carrito.`);
+                        return false;
+                    }
+                    if (prod.tipo_venta === 'empresa' && user.tipo !== 'empresa') {
+                        alert(`"${item.nombre}" solo está disponible para empresas`);
+                        return false;
+                    }
+                }
+            }
+        }
+    } catch (err) {
+        console.warn('No se pudo validar stock, continuando:', err);
+    }
+
+    return true;
 }
 
 // Editar cantidad (abre modal)
@@ -110,12 +199,26 @@ function editarCantidad(idx, cantidadActual) {
     $('#modal-cantidad').modal('show');
 }
 
+// Constantes de validación
+const CANTIDAD_MAX = 99;
+
 // Confirmar cambio de cantidad
 function confirmaCambioyCantidad() {
-    const nuevaCantidad = parseInt(document.getElementById('nueva-cantidad').value);
+    const raw = document.getElementById('nueva-cantidad').value;
+    const nuevaCantidad = parseInt(raw);
 
     if (isNaN(nuevaCantidad) || nuevaCantidad < 1) {
-        alert('Ingresa una cantidad válida');
+        alert('Ingresa una cantidad válida (mínimo 1)');
+        return;
+    }
+
+    if (nuevaCantidad > CANTIDAD_MAX) {
+        alert(`La cantidad máxima por producto es ${CANTIDAD_MAX}`);
+        return;
+    }
+
+    if (!Number.isInteger(Number(raw))) {
+        alert('La cantidad debe ser un número entero');
         return;
     }
 
@@ -181,13 +284,11 @@ function configurarBotonesCarrito(tipoUsuario) {
 
 // Proceder al pago
 async function procederAlPago() {
+    // Validación completa del carrito antes de proceder
+    const valido = await validarCarrito();
+    if (!valido) return;
+
     const cart = loadCart();
-
-    if (cart.length === 0) {
-        alert('Tu carrito está vacío');
-        return;
-    }
-
     const user = getCurrentUser();
 
     try {
@@ -229,7 +330,9 @@ async function procederAlPago() {
         window.location.href = `/pago/?orden=${data[0].id}`;
     } catch (err) {
         console.error('Error al procesar orden:', err);
-        alert('Error al procesar tu compra. Intenta nuevamente.');
+        // Si falla guardar en Supabase, redirigir igualmente a la página de pago
+        // (la página de pago volverá a crear la orden)
+        window.location.href = '/pago/';
     }
 }
 

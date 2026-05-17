@@ -199,7 +199,8 @@
 
 {% block extra_js %}
 <script>
-const ordenId = '{{ orden_id }}';
+// Mantenemos la constante de Django intacta arriba
+const ordenIdContexto = '{{ orden_id }}';
 let ordenActual = null;
 
 // Cargar datos al iniciar
@@ -292,75 +293,54 @@ function validarFormulario() {
     return true;
 }
 
-// Iniciar el pago con Transbank
-// NOTA: Esta es la estructura preparada para Transbank.
-// Las credenciales reales se agregarán cuando estén disponibles.
+// Iniciar el pago real con Transbank Webpay Plus
 async function iniciarPagoTransbank() {
-    if (!validarFormulario()) return;
-
-    const btn = document.getElementById('btn-pagar');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Procesando...';
-
     try {
-        const user = getCurrentUser();
-        const cart = loadCart();
+        // 1. Rescatamos el ID de la orden directamente desde los parámetros de la URL actual
+        const urlParams = new URLSearchParams(window.location.search);
+        const ordenId = urlParams.get('orden') || "18";
 
-        // 1. Guardar orden en Supabase
-        const orden = {
-            usuario_id: user.tipo === 'usuario' ? user.id : null,
-            empresa_id: user.tipo === 'empresa' ? user.id : null,
-            estado: 'pendiente',
-            items: cart,
-            total_items: cart.length,
-            subtotal: cart.reduce((s, i) => s + (i.precio * i.cantidad), 0),
-            iva: cart.reduce((s, i) => s + (i.precio * i.cantidad), 0) * 0.19,
-            total: window.totalAPagar,
-            tipo_orden: user.tipo,
-            fecha_creacion: new Date().toISOString(),
-            metodo_pago: 'transbank',
-            direccion_envio: document.getElementById('pago-direccion').value,
-            ciudad: document.getElementById('pago-ciudad').value,
-            region: document.getElementById('pago-region').value,
-            telefono: document.getElementById('pago-telefono').value,
-        };
+        
+        let montoTexto = document.querySelector('.total-pagar')?.innerText || "7140";
+        let montoLimpio = parseInt(montoTexto.replace(/[^0-9]/g, ''), 10) || 7140;
 
-        const { data, error } = await sb.from('ordenes').insert([orden]).select();
+        console.log("Enviando datos al backend:", { amount: montoLimpio, orden_id: ordenId });
 
-        if (error) throw error;
+        const response = await fetch("/webpay-iniciar/", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}' // Asegúrate de que Django renderice esto
+            },
+            body: JSON.stringify({
+                amount: montoLimpio,
+                orden_id: ordenId
+            })
+        });
 
-        // 2. INTEGRACIÓN TRANSBANK (preparada para activarse)
-        // Cuando se tengan las credenciales, descomentar y configurar:
-        //
-        // const response = await fetch('/api/transbank/create-transaction/', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({
-        //         orden_id: data[0].id,
-        //         amount: window.totalAPagar,
-        //         return_url: window.location.origin + '/pago/confirmacion/'
-        //     })
-        // });
-        // const { url, token } = await response.json();
-        // window.location.href = `${url}?token_ws=${token}`;
+        const data = await response.json();
 
-        // SIMULACIÓN temporal (mientras se integra Transbank):
-        alert('✓ Orden creada exitosamente.\n\nEn producción serás redirigido a Transbank para completar el pago.\n\nID de orden: ' + data[0].id);
+        if (response.ok && data.url && data.token) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = data.url;
 
-        // Limpiar carrito
-        const key = getCartKey();
-        if (key) localStorage.removeItem(key);
+            const inputToken = document.createElement('input');
+            inputToken.type = 'hidden';
+            inputToken.name = 'token_ws';
+            inputToken.value = data.token;
 
-        // Redirigir a perfil
-        setTimeout(() => {
-            window.location.href = '/perfil/';
-        }, 1500);
+            form.appendChild(inputToken);
+            document.body.appendChild(form);
+            form.submit(); // ¡Al infinito y más allá!
+        } else {
+            throw new Error(data.error || "Error devuelto por el servidor");
+        }
 
-    } catch (err) {
-        console.error('Error procesando pago:', err);
-        alert('Error al procesar el pago: ' + (err.message || 'Intenta nuevamente'));
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa fa-lock"></i> Pagar con Transbank';
+    } catch (error) {
+        console.error("Error procesando pago:", error);
+        alert("Hubo un problema al conectar con Transbank: " + error.message);
     }
 }
 </script>

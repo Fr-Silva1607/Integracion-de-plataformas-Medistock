@@ -159,18 +159,47 @@ function displayRating() {
     document.getElementById('rating-text').textContent = `(${Math.round(ratingValue * 10) / 10} de 5 - 234 reseñas)`;
 }
 
-// Configurar botones según tipo_venta
+// Configurar botones según tipo_venta y estado de login
 function configurarBotonesCompra(tipoVenta) {
     const btnPersonal = document.getElementById('btn-compra-personal');
     const btnEmpresa = document.getElementById('btn-compra-empresa');
 
-    if (tipoVenta === 'personal') {
-        btnEmpresa.style.display = 'none';
-    } else if (tipoVenta === 'empresa') {
-        btnPersonal.style.display = 'none';
-    } else if (tipoVenta === 'ambos') {
-        btnPersonal.style.display = 'block';
-        btnEmpresa.style.display = 'block';
+    const user = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+    const isLogged = !!user;
+    const tipoUsuario = user ? user.tipo : null;
+
+    // Resetear: ocultar ambos por defecto
+    btnPersonal.style.display = 'none';
+    btnEmpresa.style.display = 'none';
+
+    if (!isLogged) {
+        // No logeado: mostrar según tipo_venta del producto (ambos si "ambos")
+        if (tipoVenta === 'personal' || tipoVenta === 'ambos' || tipoVenta === 'libre') {
+            btnPersonal.style.display = 'block';
+        }
+        if (tipoVenta === 'empresa' || tipoVenta === 'ambos') {
+            btnEmpresa.style.display = 'block';
+        }
+
+        // Cambiar texto a "Comprar" simple si no logeado (llevará a login)
+        btnPersonal.innerHTML = '<i class="fa fa-shopping-cart"></i> Comprar';
+        btnEmpresa.innerHTML = '<i class="fa fa-building"></i> Comprar Empresa';
+        return;
+    }
+
+    // Logeado: mostrar UN SOLO botón "Comprar" según su tipo
+    if (tipoUsuario === 'empresa') {
+        // Empresa solo ve botón de empresa (si producto lo permite)
+        if (tipoVenta === 'empresa' || tipoVenta === 'ambos' || tipoVenta === 'personal' || tipoVenta === 'libre') {
+            btnEmpresa.style.display = 'block';
+            btnEmpresa.innerHTML = '<i class="fa fa-shopping-cart"></i> Comprar';
+        }
+    } else {
+        // Usuario personal solo ve botón personal
+        if (tipoVenta === 'personal' || tipoVenta === 'ambos' || tipoVenta === 'libre') {
+            btnPersonal.style.display = 'block';
+            btnPersonal.innerHTML = '<i class="fa fa-shopping-cart"></i> Comprar';
+        }
     }
 }
 

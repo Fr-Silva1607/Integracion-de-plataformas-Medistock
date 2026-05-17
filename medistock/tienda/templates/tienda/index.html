@@ -327,7 +327,6 @@
 <script src="{% static 'assets/js/scripts.js' %}"></script>
 
 {% block extra_js %}
-<!-- SDK de Supabase (Carga limpia una sola vez) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -472,7 +471,7 @@
         updateCartCount();
         if (window.WOW) new WOW().init();
     });
-})(); // <-- Ahora la IIFE cierra correctamente al final de todo el bloque lógico
+})(); 
 </script>
 
 <!-- CARRUSEL -->

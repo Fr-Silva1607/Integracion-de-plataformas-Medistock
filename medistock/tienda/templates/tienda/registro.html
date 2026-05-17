@@ -269,7 +269,6 @@ function togglePassword(inputId, icon) {
     icon.innerHTML = isPass ? '<i class="fa fa-eye-slash"></i>' : '<i class="fa fa-eye"></i>';
 }
 
-// ── Fuerza de contraseña ──
 document.getElementById('password').addEventListener('input', function () {
     const val = this.value;
     const bar = document.getElementById('password-strength');
@@ -284,7 +283,7 @@ document.getElementById('password').addEventListener('input', function () {
     bar.textContent = val.length ? ('Contraseña: ' + (labels[strength] || '')) : '';
 });
 
-// ── Validar RUT chileno ──
+// valida rut
 function validarRut(rut) {
     rut = rut.replace(/\./g, '').replace(/-/g, '').toUpperCase();
     if (rut.length < 8) return false;
@@ -300,14 +299,14 @@ function validarRut(rut) {
     return dv === dvStr;
 }
 
-// ── Formatear RUT mientras escribe ──
+// cambia el rut mientras se escribe
 document.getElementById('rut').addEventListener('input', function () {
     let val = this.value.replace(/[^0-9kK]/g, '').toUpperCase();
     if (val.length > 1) val = val.slice(0, -1) + '-' + val.slice(-1);
     this.value = val;
 });
 
-// ── Validación completa ──
+// valida todo
 function validateForm() {
     let valid = true;
     const fields = ['rut','nombre','apellido','email','telefono','region','comuna','direccion','genero','password','password2'];
@@ -357,14 +356,14 @@ function validateForm() {
     return valid;
 }
 
-// ── Hash SHA-256 ──
+// no me acuerdo que era esto lol
 async function hashPassword(password) {
     const data = new TextEncoder().encode(password);
     const hash = await crypto.subtle.digest('SHA-256', data);
     return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// ── Alerta ──
+//  Alerta 
 function showAlert(msg, type = 'error') {
     const el = document.getElementById('reg-alert');
     el.className = 'login-alert ' + type;
@@ -373,7 +372,7 @@ function showAlert(msg, type = 'error') {
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// ── Registro ──
+// Registro 
 async function handleRegistro() {
     if (!validateForm()) return;
 

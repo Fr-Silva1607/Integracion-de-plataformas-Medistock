@@ -62,7 +62,7 @@
 
     <!-- PRODUCTOS GRID -->
     <div class="productos-container productos-grid-layout" id="productos-grid">
-        <!-- Los productos se cargarán aquí mediante JavaScript -->
+
     </div>
 
     <!-- EMPTY STATE -->
@@ -74,26 +74,26 @@
 </section>
 {% endblock %}
 {% block extra_js %}
-<!-- IMPORTACIÓN CORRECTA DEL SDK ANTES DE SU USO -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-// CONFIGURAR E INICIALIZAR CREDENCIALES EVITANDO DECLARACIONES DUPLICADAS
+// configuracion de supabase
 if (!window.sb) {
     const supabaseUrl = "https://ljzypuiqebttfmmgzsqk.supabase.co"; 
     const supabaseKey = "sb_publishable_LM3_tYyHvBjdPQxqJwB-zA_u03mDQwR";
     window.sb = supabase.createClient(supabaseUrl, supabaseKey);
 }
 
-// Aseguramos la persistencia del listado de forma global y segura
+
 window.allProductosListado = window.allProductosListado || [];
 
-// ── Formato de precio en CLP ──
+// configuracion de pesos chilenos
 function formatPrice(price) {
     return '$ ' + Number(price).toLocaleString('es-CL');
 }
 
-// ── Badge según tipo de venta ──
+// tipo venta
 function getBadge(tipo) {
     const map = {
         'receta':   ['badge-prescription', 'VENTA BAJO RECETA'],
@@ -106,11 +106,39 @@ function getBadge(tipo) {
     return `<span class="product-badge ${cls}" style="position: absolute; top: 10px; left: 10px; background: ${colorBg}; color: white; padding: 3px 8px; font-size: 0.75rem; border-radius: 3px; z-index: 10;">${label}</span>`;
 }
 
-// ── Renderizar la tarjeta del producto ──
+//  Renderizar la tarjeta del producto 
 function renderCard(p) {
     const img = p.imagen_url || 'https://via.placeholder.com/280x220?text=Sin+imagen';
     const stockBajo = (p.cantidad || 0) <= 5 && (p.cantidad || 0) > 0;
     const sinStock = (p.cantidad || 0) <= 0;
+
+    // Determinar botones según login y tipo de usuario
+    const user = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+    let botonesHTML = '';
+
+    if (!user) {
+        // NO LOGEADO: dos botones (Comprar / Comprar Empresa) que redirigen al login
+        botonesHTML = `
+            <button class="btn-carrito" onclick="irLoginCompra('personal')" ${sinStock ? 'disabled' : ''} style="flex: 1; padding: 8px; background: ${sinStock ? '#ccc' : '#3498db'}; color: white; border: none; border-radius: 4px; cursor: ${sinStock ? 'not-allowed' : 'pointer'}; font-size: 0.85rem;">
+                <i class="fa fa-shopping-cart"></i> Comprar
+            </button>
+            <button class="btn-carrito-empresa" onclick="irLoginCompra('empresa')" ${sinStock ? 'disabled' : ''} style="flex: 1; padding: 8px; background: ${sinStock ? '#ccc' : '#e67e22'}; color: white; border: none; border-radius: 4px; cursor: ${sinStock ? 'not-allowed' : 'pointer'}; font-size: 0.85rem;">
+                <i class="fa fa-building"></i> Comprar Empresa
+            </button>
+        `;
+    } else {
+        // LOGEADO: un solo botón "Comprar" — el tipo se determina por el tipo de usuario
+        const label = user.tipo === 'empresa' ? 'Comprar (Empresa)' : 'Comprar';
+        const color = user.tipo === 'empresa' ? '#e67e22' : '#3498db';
+        botonesHTML = `
+            <button class="btn-carrito" onclick="agregarRapido(${p.id})" ${sinStock ? 'disabled' : ''} style="flex: 1; padding: 8px; background: ${sinStock ? '#ccc' : color}; color: white; border: none; border-radius: 4px; cursor: ${sinStock ? 'not-allowed' : 'pointer'};">
+                <i class="fa fa-shopping-cart"></i> ${label}
+            </button>
+            <a href="/producto/${p.id}/" class="btn-detalles" style="flex: 1; padding: 8px; background: #eee; color: #333; text-align: center; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                <i class="fa fa-eye"></i> Detalles
+            </a>
+        `;
+    }
 
     return `
         <div class="producto-card" onclick="window.location.href='/producto/${p.id}/'" style="cursor: pointer; border: 1px solid #ddd; padding: 15px; background: white; border-radius: 8px; display: inline-block; width: 280px; vertical-align: top; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: left; position: relative;">
@@ -133,16 +161,18 @@ function renderCard(p) {
                 </div>
 
                 <div class="producto-buttons" onclick="event.stopPropagation();" style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button class="btn-carrito" onclick="agregarRapido(${p.id})" ${sinStock ? 'disabled' : ''} style="flex: 1; padding: 8px; background: ${sinStock ? '#ccc' : '#3498db'}; color: white; border: none; border-radius: 4px; cursor: ${sinStock ? 'not-allowed' : 'pointer'};">
-                        <i class="fa fa-shopping-cart"></i> Carrito
-                    </button>
-                    <a href="/producto/${p.id}/" class="btn-detalles" style="flex: 1; padding: 8px; background: #eee; color: #333; text-align: center; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
-                        <i class="fa fa-eye"></i> Detalles
-                    </a>
+                    ${botonesHTML}
                 </div>
             </div>
         </div>
     `;
+}
+
+// Redirigir a login guardando intención de compra
+function irLoginCompra(tipo) {
+    sessionStorage.setItem('medistock_intencion_compra', tipo);
+    alert('Para comprar debes iniciar sesión primero.');
+    window.location.href = '/login/';
 }
 
 // ── Llenar el menú desplegable de categorías dinámicamente ──

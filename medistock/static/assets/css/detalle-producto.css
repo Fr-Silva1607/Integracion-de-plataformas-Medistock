@@ -1,4 +1,3 @@
-/* ── DETALLE DE PRODUCTO ── */
 
 .detalle-section {
     padding: 40px 0;
@@ -20,8 +19,6 @@
     margin: 40px 0;
     gap: 40px;
 }
-
-/* ── GALERÍA ── */
 
 .galeria-section {
     display: flex;
@@ -84,8 +81,6 @@
     border-color: #667eea;
 }
 
-/* ── INFORMACIÓN ── */
-
 .info-section {
     display: flex;
     flex-direction: column;
@@ -111,8 +106,6 @@
     margin: 0;
 }
 
-/* ── RATING ── */
-
 .rating-section {
     display: flex;
     align-items: center;
@@ -133,7 +126,6 @@
     font-size: 13px;
 }
 
-/* ── STOCK ── */
 
 .stock-info {
     font-size: 14px;
@@ -148,7 +140,7 @@
     color: #e74c3c;
 }
 
-/* ── PRECIO ── */
+
 
 .precio-section {
     display: flex;
@@ -168,7 +160,7 @@
     text-decoration: line-through;
 }
 
-/* ── DESCRIPCIÓN ── */
+
 
 .descripcion-section {
     padding: 20px;
@@ -183,7 +175,7 @@
     line-height: 1.6;
 }
 
-/* ── ESPECIFICACIONES ── */
+
 
 .especificaciones-section {
     padding: 20px 0;
@@ -214,7 +206,7 @@
     color: #333;
 }
 
-/* ── CANTIDAD ── */
+
 
 .cantidad-section {
     display: flex;
@@ -255,7 +247,7 @@
     font-weight: 600;
 }
 
-/* ── BOTONES COMPRA ── */
+
 
 .botones-compra {
     display: grid;
@@ -303,7 +295,7 @@
     cursor: not-allowed;
 }
 
-/* ── INFO ADICIONAL ── */
+
 
 .info-adicional {
     padding: 20px;
@@ -325,7 +317,7 @@
     color: #27ae60;
 }
 
-/* ── COMPARTIR ── */
+
 
 .compartir-section {
     display: flex;
@@ -437,7 +429,7 @@
     color: #f39c12;
 }
 
-/* ── PRODUCTOS RELACIONADOS ── */
+
 
 .grid-productos {
     display: grid;
@@ -512,7 +504,7 @@
     font-size: 12px;
 }
 
-/* ── RESPONSIVE ── */
+
 
 @media (max-width: 992px) {
     .detalle-container {

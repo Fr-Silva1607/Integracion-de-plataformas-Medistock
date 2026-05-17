@@ -1,7 +1,31 @@
+import json
+import random
+import math
+import time
+import datetime
 from django.shortcuts import render
 from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
+# Transbank Webpay Plus
+from transbank.common.options import WebpayOptions
+from transbank.common.integration_type import IntegrationType
+from transbank.common.integration_commerce_codes import IntegrationCommerceCodes
+from transbank.common.integration_api_keys import IntegrationApiKeys
+from transbank.webpay.webpay_plus.transaction import Transaction as WebpayTransaction
 
+COMMERCE_CODE_TEST = IntegrationCommerceCodes.WEBPAY_PLUS
+API_KEY_TEST = IntegrationApiKeys.WEBPAY
+
+# aqui dice "wey, tengo los datos "
+options = WebpayOptions(COMMERCE_CODE_TEST, API_KEY_TEST, IntegrationType.TEST)
+
+# incializa la wea
+tx = WebpayTransaction(options)
+
+# vistas princpales
 def home(request):
     return render(request, 'tienda/index.html', {
         'SUPABASE_URL': settings.SUPABASE_URL,
@@ -81,74 +105,210 @@ def perfil(request):
         'SUPABASE_KEY': settings.SUPABASE_KEY,
     })
 
-import random
-from django.shortcuts import render, redirect
-from django.conf import settings
-from transbank.webpay.webpay_plus.transaction import Transaction
-from transbank.common.options import WebpayOptions
-from transbank.common.integration_type import IntegrationType
+#logica de transback
 
-# 1. Configurar la conexión con las credenciales de prueba
-def get_webpay_options():
-    # En producción reemplazarías estos strings por variables de tu settings.py (.env)
-    commerce_code = "597055555532"
-    api_key = "579B532A7440BB0C9079DED94D31EA1615B119517446553A547425419C83FF1B"
-    
-    # Indicamos que estamos en el ambiente de TEST (Integración)
-    return WebpayOptions(commerce_code, api_key, IntegrationType.TEST)
-
-
-# VISTA 1: Iniciar el pago y redirigir al usuario a Transbank
+@csrf_exempt
 def webpay_iniciar(request):
-    # Datos de la compra (puedes sacarlos de tu sesión, carrito o BD)
-    buy_order = f"O-{random.randint(10000, 99999)}" # Orden de compra única
-    session_id = request.session.session_key or "session_anonima"
-    amount = 15500 # El total en CLP (debe ser entero)
+
+    amount_raw = 0
+    orden_id = None
+
+    if request.method == 'POST' and request.body:
+        try:
+            payload = json.loads(request.body.decode('utf-8'))
+            amount_raw = payload.get('amount')
+            orden_id = payload.get('orden_id')
+        except (ValueError, json.JSONDecodeError):
+            pass
+    else:
+        amount_raw = request.GET.get('amount')
+        orden_id = request.GET.get('orden_id')
+
+    # Forzar entero limpio para el monto
+    try:
+        if amount_raw is not None:
+            amount = int(round(float(amount_raw)))
+        else:
+            amount = 0
+    except (ValueError, TypeError):
+        amount = 0
+
+    if amount <= 0:
+        amount = 15500
+
+    if not orden_id:
+        orden_id = random.randint(10000, 99999)
+
+    timestamp_unico = str(int(time.time()))[-4:]
+    buy_order = f"MDS-{orden_id}-{timestamp_unico}"[:26]
+    session_id = f"sess{orden_id}"[:26]
+
+    # Ajuste de cabecera local para evitar fallos de handshake en redirección
+    host = request.get_host()
+    if 'localhost' in host:
+        host = host.replace('localhost', '127.0.0.1')
     
-    # URL de retorno: adonde Transbank enviará al usuario con el token de pago
-    return_url = request.build_absolute_uri('/tienda/webpay-retorno/')
+    return_url = f"{request.scheme}://{host}/webpay-retorno/"
+
+    print(f"--- CONFIGURANDO LLAMADA WEBPAY ---")
+    print(f"Buy Order: {buy_order}")
+    print(f"Amount: {amount} (Tipo: {type(amount)})")
+    print(f"Session ID: {session_id}")
+    print(f"Return URL: {return_url}")
+    print(f"------------------------------------")
 
     try:
-        # Inicializar la transacción con nuestras opciones configuradas
-        tx = Transaction(get_webpay_options())
+        # Usamos directamente el objeto 'tx' global ya instanciado correctamente arriba
         response = tx.create(buy_order, session_id, amount, return_url)
-        
-        # Transbank nos devuelve una URL y un Token único
-        # Debemos renderizar un formulario automático que viaje hacia allá
+
+        if 'application/json' in request.headers.get('Accept', ''):
+            return JsonResponse({
+                'url': response['url'],
+                'token': response['token'],
+                'buy_order': buy_order,
+            })
+
         return render(request, 'tienda/webpay_redirect.html', {
             'url': response['url'],
-            'token': response['token']
+            'token': response['token'],
         })
-        
+
     except Exception as e:
-        print(f"Error al crear la transacción: {e}")
-        return render(request, 'tienda/error.html', {'mensaje': 'No se pudo iniciar el pago.'})
+        import traceback
+        print(f" Error crítico en Transbank: {str(e)}")
+        traceback.print_exc() 
+        
+        error_msg = str(e)
+        
+        if 'application/json' in request.headers.get('Accept', ''):
+            return JsonResponse({
+                'success': False,
+                'error': f'Error de Transbank: {error_msg}'
+            }, status=400)
+            
+        return render(request, 'tienda/error.html', {
+            'mensaje': f'No se pudo iniciar el pago: {error_msg}'
+        })
 
 
-# VISTA 2: El retorno (Donde confirmamos si el pago fue exitoso)
+@csrf_exempt
 def webpay_retorno(request):
-    # Webpay envía el token por método GET o POST dependiendo del flujo
+    #recibe si tansback dice que si si compro o no, no compro xd
     token = request.GET.get('token_ws') or request.POST.get('token_ws')
-    
+
     if not token:
-        # Si no hay token, es probable que el usuario haya cancelado en la pantalla de Transbank
-        return render(request, 'tienda/error.html', {'mensaje': 'Pago cancelado por el usuario.'})
+        return render(request, 'tienda/pago_rechazado.html', {
+            'mensaje': 'Pago cancelado por el usuario o token ausente.',
+            'result': None,
+        })
 
     try:
-        tx = Transaction(get_webpay_options())
-        # PASO CRÍTICO: Le preguntamos a Transbank el estado real de ese token
+        # Confirmamos la transacción usando el objeto 'tx' global
         result = tx.commit(token)
-        
-        # Evaluamos la respuesta de Transbank
-        # vci 'TSY' significa transacción exitosa, y response_code == 0 es aprobado
-        if result['vci'] == 'TSY' and result['response_code'] == 0:
-            # ¡EL PAGO ESTÁ APROBADO! 
-            # Aquí es donde cambias el estado de tu pedido en la BD, vacías el carrito, etc.
+
+        # Transacción aprobada con éxito por el banco (response_code = 0)
+        if result.get('response_code') == 0:
             return render(request, 'tienda/pago_exitoso.html', {'result': result})
         else:
-            # Pago rechazado (Fondos insuficientes, tarjeta inválida, etc.)
-            return render(request, 'tienda/pago_rechazado.html', {'result': result})
-            
+            return render(request, 'tienda/pago_rechazado.html', {
+                'mensaje': 'El pago fue rechazado por el banco.',
+                'result': result,
+            })
+
     except Exception as e:
-        print(f"Error al confirmar la transacción: {e}")
-        return render(request, 'tienda/error.html', {'mensaje': 'Error al confirmar el estado del pago.'})
+        print(f"Error al confirmar transacción Transbank: {e}")
+        return render(request, 'tienda/error.html', {
+            'mensaje': f'Error al confirmar el pago: {str(e)}'
+        })
+
+
+#metodos carrito
+@require_http_methods(["POST"])
+@csrf_exempt
+def api_calcular_total(request):
+    #calcula iva
+    try:
+        payload = json.loads(request.body.decode('utf-8'))
+        items = payload.get('items', [])
+
+        if not isinstance(items, list) or not items:
+            return JsonResponse({
+                'success': False,
+                'error': 'Debes enviar una lista de items con precio y cantidad'
+            }, status=400)
+
+        subtotal = 0
+        for item in items:
+            precio = float(item.get('precio', 0))
+            cantidad = int(item.get('cantidad', 1))
+            if precio < 0 or cantidad < 1:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Precio o cantidad inválidos'
+                }, status=400)
+            subtotal += precio * cantidad
+
+        iva = subtotal * 0.19
+        total = subtotal + iva
+
+        return JsonResponse({
+            'success': True,
+            'subtotal': round(subtotal, 2),
+            'iva': round(iva, 2),
+            'total': round(total, 2),
+            'items_count': len(items),
+        })
+
+    except (ValueError, json.JSONDecodeError) as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'JSON inválido: {str(e)}'
+        }, status=400)
+
+#verifica api, muy que muy importante poruque dios mio cuantos erres tiene esta madreeeeeeeeee
+@require_http_methods(["GET"])
+def api_status(request):
+
+    return JsonResponse({
+        'status': 'online',
+        'message': 'API de Medistock funcionando correctamente',
+        'timestamp': datetime.datetime.now().isoformat()
+    })
+
+#cosnulta bbdd
+@require_http_methods(["GET"])
+def api_productos(request):
+
+    import urllib.request
+    import urllib.parse
+
+    params = {'select': '*', 'order': 'nombre.asc'}
+
+    categoria = request.GET.get('categoria')
+    tipo_venta = request.GET.get('tipo_venta')
+    max_precio = request.GET.get('max_precio')
+    buscar = request.GET.get('buscar')
+
+    if categoria:
+        params['categoria'] = f'eq.{categoria}'
+    if tipo_venta:
+        params['tipo_venta'] = f'eq.{tipo_venta}'
+    if max_precio:
+        params['precio'] = f'lte.{max_precio}'
+    if buscar:
+        params['nombre'] = f'ilike.*{buscar}*'
+
+    url = f"{settings.SUPABASE_URL.rstrip('/')}/rest/v1/productos?" + urllib.parse.urlencode(params)
+    headers = {
+        'apikey': settings.SUPABASE_KEY,
+        'Authorization': f'Bearer {settings.SUPABASE_KEY}',
+        'Accept': 'application/json',
+    }
+
+    try:
+        req = urllib.request.Request(url, headers=headers, method='GET')
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+        return JsonResponse({'count': len(data), 'productos': data})
+    except Exception as e:
+        return JsonResponse({'error': str(e), 'productos': []}, status=500)
