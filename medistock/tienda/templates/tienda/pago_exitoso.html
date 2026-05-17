@@ -1,0 +1,126 @@
+{% extends "tienda/base.html" %}
+{% load static %}
+
+{% block title %}Pago Exitoso - MediStock{% endblock %}
+
+{% block extra_css %}
+<style>
+    .resultado-pago {
+        min-height: 70vh;
+        padding: 80px 0;
+        background: #f8f9fa;
+    }
+    .resultado-card {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        padding: 50px 40px;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    .icon-exito {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        color: white;
+        font-size: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+        box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3);
+    }
+    .resultado-card h1 { color: #27ae60; margin-bottom: 15px; }
+    .resultado-card p { color: #555; font-size: 16px; line-height: 1.6; }
+    .detalles-pago {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 25px 0;
+        text-align: left;
+    }
+    .detalles-pago dt { font-weight: 600; color: #777; font-size: 13px; }
+    .detalles-pago dd {
+        margin: 0 0 12px 0;
+        color: #333;
+        font-size: 15px;
+        font-weight: 600;
+    }
+    .botones-resultado {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+    .botones-resultado .btn {
+        padding: 12px 25px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="resultado-pago">
+    <div class="container">
+        <div class="resultado-card">
+            <div class="icon-exito">
+                <i class="fa fa-check"></i>
+            </div>
+
+            <h1>¡Pago Exitoso!</h1>
+            <p>Tu transacción se procesó correctamente.<br>
+               Recibirás un email con los detalles de tu compra.</p>
+
+            {% if result %}
+            <dl class="detalles-pago">
+                <dt>Orden de Compra</dt>
+                <dd>{{ result.buy_order }}</dd>
+
+                <dt>Monto Total</dt>
+                <dd>${{ result.amount }}</dd>
+
+                <dt>Código de Autorización</dt>
+                <dd>{{ result.authorization_code }}</dd>
+
+                <dt>Tarjeta</dt>
+                <dd>**** **** **** {{ result.card_detail.card_number }}</dd>
+
+                <dt>Fecha</dt>
+                <dd>{{ result.transaction_date }}</dd>
+
+                <dt>Estado</dt>
+                <dd style="color: #27ae60;">APROBADA</dd>
+            </dl>
+            {% endif %}
+
+            <div class="botones-resultado">
+                <a href="{% url 'perfil' %}" class="btn btn-primary">
+                    <i class="fa fa-user"></i> Ver mis compras
+                </a>
+                <a href="{% url 'productos' %}" class="btn btn-secondary">
+                    <i class="fa fa-shopping-bag"></i> Seguir comprando
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Limpiar carrito al confirmar pago exitoso
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof getCartKey === 'function') {
+            const key = getCartKey();
+            if (key) localStorage.removeItem(key);
+            if (typeof updateCartCount === 'function') updateCartCount();
+        }
+    });
+</script>
+{% endblock %}

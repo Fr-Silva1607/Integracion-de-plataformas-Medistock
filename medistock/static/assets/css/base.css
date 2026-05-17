@@ -22,6 +22,28 @@ body {
     overflow-x: hidden;
 }
 
+/* ── HEADER NEGRO (todas las páginas excepto login) ── */
+body:not(.page-login) .site-navbar,
+body:not(.page-login) .site-navbar .site-menu > li > a,
+body:not(.page-login) .site-navbar .nav-link,
+body:not(.page-login) .site-navbar .navbar-icon,
+body:not(.page-login) .site-navbar .btn-perfil,
+body:not(.page-login) .site-navbar .site-logo a {
+    color: #000 !important;
+}
+
+body:not(.page-login) .site-navbar .site-menu > li > a:hover,
+body:not(.page-login) .site-navbar .nav-link:hover,
+body:not(.page-login) .site-navbar .btn-perfil:hover,
+body:not(.page-login) .site-navbar .navbar-icon:hover {
+    color: var(--primary) !important;
+}
+
+body:not(.page-login) .site-navbar {
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
 
 .navbar-icons {
     display: flex;
@@ -58,7 +80,6 @@ body {
     font-weight: bold;
 }
 
-/* ── DROPDOWN PERFIL ── */
 
 .navbar-perfil {
     position: relative;

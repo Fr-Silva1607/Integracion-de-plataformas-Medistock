@@ -1,0 +1,82 @@
+{% extends "tienda/base.html" %}
+{% load static %}
+
+{% block title %}Pago Rechazado - MediStock{% endblock %}
+
+{% block extra_css %}
+<style>
+    .resultado-pago {
+        min-height: 70vh;
+        padding: 80px 0;
+        background: #f8f9fa;
+    }
+    .resultado-card {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        padding: 50px 40px;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    .icon-error {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+        font-size: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+        box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+    }
+    .resultado-card h1 { color: #e74c3c; margin-bottom: 15px; }
+    .resultado-card p { color: #555; font-size: 16px; line-height: 1.6; }
+    .botones-resultado {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+    .botones-resultado .btn {
+        padding: 12px 25px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="resultado-pago">
+    <div class="container">
+        <div class="resultado-card">
+            <div class="icon-error">
+                <i class="fa fa-times"></i>
+            </div>
+
+            <h1>Pago Rechazado</h1>
+            <p>{{ mensaje|default:"Tu transacción no pudo procesarse. Verifica los datos de tu tarjeta o intenta con otro medio de pago." }}</p>
+
+            {% if result %}
+            <div style="background: #fff8e1; border-left: 4px solid #f57f17; padding: 15px; margin: 20px 0; text-align: left; border-radius: 4px;">
+                <strong>Código de respuesta:</strong> {{ result.response_code }}<br>
+                <strong>Orden:</strong> {{ result.buy_order|default:"N/A" }}
+            </div>
+            {% endif %}
+
+            <div class="botones-resultado">
+                <a href="{% url 'carrito' %}" class="btn btn-primary">
+                    <i class="fa fa-shopping-cart"></i> Volver al carrito
+                </a>
+                <a href="{% url 'home' %}" class="btn btn-secondary">
+                    <i class="fa fa-home"></i> Ir al inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -166,7 +166,7 @@
             <div class="col-12">
                 <h3>Productos Relacionados</h3>
                 <div class="productos-relacionados" id="productos-relacionados">
-                    <!-- Se cargarán dinámicamente -->
+
                 </div>
             </div>
         </div>
@@ -177,7 +177,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- IMPORTACIÓN DEL SDK DE SUPABASE -->
+# IMPORTACIÓN DEL SDK DE SUPABASE
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="{% static 'assets/js/detalle-producto.js' %}"></script>
 
@@ -197,7 +197,7 @@ const productoId = urlParams.get('id') || '{{ producto_id }}';
 window.currentProducto = null;
 window.currentRatingSelection = 5; // Estado inicial del formulario de reseñas
 
-// ── Formato de precio en CLP ──
+// dinero en pesos chilenos
 function formatPrice(price) {
     return '$ ' + Number(price).toLocaleString('es-CL');
 }
@@ -249,7 +249,6 @@ function decrementarCantidad() {
 function incrementarCantidad() {
     const input = document.getElementById('cantidad');
     if (input) {
-        // Podríamos limitar con el stock real si estuviera disponible, por ahora libre
         input.value = parseInt(input.value) + 1;
     }
 }
@@ -292,7 +291,6 @@ async function loadProducto(id) {
         // Guardamos en memoria global de la vista
         window.currentProducto = producto;
 
-        // --- INTERSECTAR Y MAPEAR AL DOM ---
         document.getElementById('producto-nombre').textContent = producto.nombre || 'Producto';
         document.getElementById('breadcrumb-nombre').textContent = producto.nombre || 'Producto';
         document.getElementById('categoria').textContent = (producto.categoria || 'General').toUpperCase();
@@ -327,7 +325,7 @@ async function loadProducto(id) {
             }
         }
 
-        // Renderizar tabla de especificaciones dinámicas básicas
+
         const tabla = document.getElementById('especificaciones-tabla');
         if (tabla) {
             tabla.innerHTML = `
@@ -338,7 +336,7 @@ async function loadProducto(id) {
             `;
         }
 
-        // Mostrar Badge de Precio Adicional/Especial si existe campo dedicado
+  
         if (producto.etiqueta_precio) {
             const etiqueta = document.getElementById('etiqueta-precio');
             if (etiqueta) {
@@ -347,7 +345,7 @@ async function loadProducto(id) {
             }
         }
 
-        // Cargar las opiniones simuladas compartidas
+
         cargarResenasEstaticas();
 
     } catch (err) {
@@ -385,9 +383,9 @@ function agregarAlCarritoEmpresa() {
     }
 }
 
-// Lanzar la carga controlando los flujos del DOM
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar colores del control de estrellas en el HTML de opiniones
+
     setRating(5);
 
     if (productoId) {

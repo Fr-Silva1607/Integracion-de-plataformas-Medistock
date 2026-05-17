@@ -1,13 +1,40 @@
 /* ── LOGIN PAGE STYLES ── */
 
 .login-section {
-    min-height: 100vh;
+    min-height: calc(100vh - 120px);
     display: flex;
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 20px;
-    margin-top: 80px;
+    padding: 140px 20px 60px 20px;
+    margin-top: 0;
+}
+
+/* En la página de login el navbar puede usar texto blanco (override por body.page-login) */
+body.page-login .site-navbar {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    box-shadow: none !important;
+    backdrop-filter: blur(6px);
+}
+
+body.page-login .site-navbar a,
+body.page-login .site-navbar .nav-link,
+body.page-login .site-navbar .btn-perfil,
+body.page-login .site-navbar .navbar-icon,
+body.page-login .site-navbar #user-nombre,
+body.page-login .site-navbar .navbar-icon i,
+body.page-login .site-navbar .site-menu li a {
+    color: #fff !important;
+}
+
+/* En login: el main NO debe tener padding-top (el padding está en .login-section) */
+body.page-login main {
+    padding-top: 0 !important;
+}
+
+/* En registro: el main mantiene el padding pero aseguramos que el card no toque header */
+body.page-registro main {
+    padding-top: 110px !important;
 }
 
 .login-card {

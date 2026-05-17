@@ -8,24 +8,22 @@ async function initProductosListado() {
     setupFiltrosListado();
 }
 
-// Cargar productos desde Supabase
+
 async function loadProductosListado() {
     const grid = document.getElementById('productos-grid');
     const loading = document.getElementById('loading-state');
     const emptyState = document.getElementById('empty-state');
 
     try {
-        // Validación de seguridad para comprobar si existe la conexión con Supabase
-        if (typeof sb === 'undefined') {
-            throw new Error("El cliente de Supabase ('sb') no está definido. Asegúrate de cargarlo en el HTML.");
-        }
 
-        const { data, error } = await sb
-            .from('productos')
-            .select('*')
-            .order('nombre', { ascending: true });
+        const response = await fetch('/api/productos/');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-        if (error) throw error;
+        const json = await response.json();
+        const data = json.productos || [];
+        const error = json.error || null;
+
+        if (error) throw new Error(error);
 
         if (!data || data.length === 0) {
             if (loading) loading.style.display = 'none';
@@ -33,14 +31,18 @@ async function loadProductosListado() {
             return;
         }
 
-        // SOLUCIÓN AL ERROR CRÍTICO: Eliminamos la función inexistente 'filterProductosByType' 
-        // Asignamos directamente la data limpia a nuestra variable de control global
-        allProductosListado = data;
+        const user = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+        const isEmpresa = user && user.tipo === 'empresa';
 
-        // Construir lista de categorías para el filtro
+        allProductosListado = data.filter(p => {
+            if (p.tipo_venta === 'empresa' && !isEmpresa) return false;
+            return true;
+        });
+
+
         buildCategoriasFiltro(allProductosListado);
 
-        // Mostrar productos y apagar el loading de inmediato
+
         if (loading) loading.style.display = 'none';
         displayProductosListado(allProductosListado);
 
@@ -59,15 +61,13 @@ async function loadProductosListado() {
     }
 }
 
-// Construir lista de categorías para el filtro limpiando espacios invisibles
+
 function buildCategoriasFiltro(productos) {
     const select = document.getElementById('categoria');
     if (!select) return;
 
-    // Extraemos las categorías pasándolas a minúsculas y removiendo espacios raros (ej: "insumo " -> "insumo")
     const categorias = [...new Set(productos.map(p => p.categoria ? p.categoria.trim().toLowerCase() : ''))].filter(Boolean).sort();
 
-    // Limpiar opciones excepto "Todas"
     select.innerHTML = '<option value="">Todas</option>';
     categorias.forEach(cat => {
         const option = document.createElement('option');
@@ -180,7 +180,6 @@ function setupFiltrosListado() {
     if (ordenar) ordenar.addEventListener('change', applyFiltrosListado);
 }
 
-// Aplicar filtros y mostrar resultados de forma limpia y tolerante a espacios
 function applyFiltrosListado() {
     const buscarVal = (document.getElementById('buscar')?.value || '').toLowerCase().trim();
     const categoriaVal = (document.getElementById('categoria')?.value || '').trim().toLowerCase();
@@ -194,7 +193,7 @@ function applyFiltrosListado() {
             return false;
         }
         
-        // SOLUCIÓN AL ESPACIO BLANCO: Sincronizamos la comparación de categorías en minúscula limpia
+        
         const pCatLimpia = p.categoria ? p.categoria.trim().toLowerCase() : '';
         if (categoriaVal && pCatLimpia !== categoriaVal) {
             return false;
