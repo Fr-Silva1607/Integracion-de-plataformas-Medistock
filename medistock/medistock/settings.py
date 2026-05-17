@@ -39,7 +39,7 @@ ROOT_URLCONF = 'medistock.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],  # 👈 IMPORTANTE: vacío
+        'DIRS': [],  #  IMPORTANTE: vacío
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

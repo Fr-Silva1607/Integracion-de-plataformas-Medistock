@@ -192,6 +192,10 @@ width: 35px;
     background-position: center;
     height: 400px;
 }
+.mini-info {
+    padding: 60px 0;
+    background: #f9f9f9;
+}
 /*
 * ----------------------------------------------------------------------------------------
 * 02.START BOOTSTRAP NAVIGATION OVERRIDES
@@ -370,6 +374,7 @@ height:650px;
 }
 
 /*START HOME SLIDER DESIGN*/
+/*
 .flexslider .slides > li:first-child {
 	display: block; 
 }
@@ -446,7 +451,7 @@ height:650px;
 }
 @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
-
+*/
 /*END HOME SLIDER DESIGN*/
 /*
 * ----------------------------------------------------------------------------------------
@@ -663,7 +668,114 @@ text-align: center;
 .single_property_form_agent_profile h4 i{color:#35ac39;}
 .single_property_form_agent_profile h4 a{color:#35ac39;font-size: 16px;}
 
+.carrusel {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+}
 
+.slides {
+    display: flex;
+    transition: transform 0.6s ease-in-out;
+}
+
+.slide {
+    min-width: 100%;
+    position: relative;
+}
+
+.slide img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+}
+
+/* overlay oscuro */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0,0,0,0.5);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+    color: white;
+}
+
+/* texto */
+.overlay h2 {
+    font-size: 48px;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.overlay p {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: white;
+}
+
+/* botón */
+.btn-slide {
+    background: #2a7c6f;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn-slide:hover {
+    background: #1f5e54;
+}
+
+/* flechas */
+.prev, .next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: none;
+    padding: 12px;
+    cursor: pointer;
+    font-size: 22px;
+    border-radius: 50%;
+}
+
+.prev:hover, .next:hover {
+    background: #2a7c6f;
+}
+
+.prev { left: 15px; }
+.next { right: 15px; }
+
+.overlay h2 {
+    animation: fadeDown 1s ease;
+}
+
+.overlay p {
+    animation: fadeUp 1.2s ease;
+}
+
+@keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/*
 .carousel .slide-control {
 background: #35ac39 none repeat scroll 0 0;
 border-radius: 30px;
@@ -702,7 +814,8 @@ width: 45px;
     color: #fff;
     opacity: .25;
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=25)";
-}
+}*/
+
 /*ABOUT SLIDER*/
 /*
 * ----------------------------------------------------------------------------------------
@@ -2115,10 +2228,15 @@ font-weight: 500;
 * ----------------------------------------------------------------------------------------
 */
 .footer-area {
+    background-image: url("../img/footer.png");
+    background-size: cover;
+    background-position: center;
+}
+.footer-area {
     position: relative;
-    background-image: url(../img/bg/footer.png);
+    background-image: url(../img/footer.png);
     background-size: 100% 100%;
-	padding: 160px 0px 60px;
+    padding: 160px 0px 60px;
 }
 /*START FOOTER SOCIAL*/
  .footer_social {
@@ -2269,3 +2387,94 @@ color: #fff !important;
  * 19.END SECTION TOP DESIGN
  * ----------------------------------------------------------------------------------------
 */
+/* ──LOGIN ── */
+
+/* Fondo más moderno (mantiene tu estilo pero más suave) */
+.login-section {
+    background: linear-gradient(135deg, #e9fbf8, #d8f7f2);
+}
+
+/* Tarjeta más elegante */
+.login-card {
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    max-width: 600px; /* más ancho para registro */
+}
+
+/* Mejor espaciado entre bloques */
+.form-section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2a7c6f;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    border-left: 4px solid #2a7c6f;
+    padding-left: 10px;
+}
+
+/* Inputs más modernos */
+.input-login {
+    border-radius: 10px;
+    padding: 12px;
+    transition: all 0.3s;
+}
+
+.input-login:focus {
+    border-color: #2a7c6f;
+    box-shadow: 0 0 0 3px rgba(42, 124, 111, 0.15);
+}
+
+/* Filas dobles (para ordenar mejor el form) */
+.form-row-double {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-row-double {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Botón principal más moderno */
+.btn-aceptar {
+    background: linear-gradient(135deg, #2a7c6f, #3fb8a6);
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.btn-aceptar:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1e5f55, #2a7c6f);
+}
+
+/* Botón cancelar mejorado */
+.btn-cancelar {
+    border-radius: 10px;
+}
+
+/* Checkbox más limpio */
+.checkbox-group {
+    margin-top: 10px;
+}
+
+.checkbox-label {
+    font-size: 13px;
+    color: #555;
+}
+
+.checkbox-label a {
+    color: #2a7c6f;
+    font-weight: 600;
+}
+
+/* Título más elegante */
+.login-title {
+    color: #2a7c6f;
+}
+
+/* Subtítulo */
+.login-subtitle {
+    color: #666;
+}

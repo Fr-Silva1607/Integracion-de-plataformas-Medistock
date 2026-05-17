@@ -14,9 +14,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{% static 'assets/fonts/font-awesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/fonts/themify-icons.css' %}">
-    <!-- Owl Carousel -->
-    <link rel="stylesheet" href="{% static 'assets/owlcarousel/css/owl.carousel.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/owlcarousel/css/owl.theme.css' %}">
     <!-- Plugins CSS -->
     <link rel="stylesheet" href="{% static 'assets/css/fonts.css' %}">
     <link href="{% static 'assets/css/prettyPhoto.css' %}" rel="stylesheet">
@@ -29,6 +26,7 @@
     <!-- Index CSS -->
     <link rel="stylesheet" href="{% static 'assets/css/index.css' %}">
 </head>
+
 
 <body data-spy="scroll" data-offset="80">
 
@@ -121,6 +119,48 @@
     </div>
 </section>
 
+<section class="mini-info">
+    <div class="container text-center">
+        <h3>Compra fácil, rápida y segura</h3>
+        <p>Despacho a toda la RM • Productos certificados • Atención 24/7</p>
+    </div>
+</section>
+
+<!-- CARRUSEL -->
+<div class="carrusel">
+    <div class="slides">
+        <div class="slide">
+            <img src="{% static 'assets/img/carrusel1.png' %}">
+            <div class="overlay">
+                <h2>Equipamiento Médico</h2>
+                <p>Productos de calidad para tu institución</p>
+                <a href="/productos/" class="btn-slide">Ver productos</a>
+            </div>
+        </div>
+
+        <div class="slide">
+            <img src="{% static 'assets/img/Carrusel2.png' %}">
+            <div class="overlay">
+                <h2>Compra Fácil</h2>
+                <p>Proceso rápido y seguro</p>
+                <a href="/productos/" class="btn-slide">Comprar ahora</a>
+            </div>
+        </div>
+
+        <div class="slide">
+            <img src="{% static 'assets/img/carrusel3.png' %}">
+            <div class="overlay">
+                <h2>MediStock</h2>
+                <p>Tu aliado en insumos médicos</p>
+                <a href="/about/" class="btn-slide">Conócenos</a>
+            </div>
+        </div>
+    </div>
+
+    <button class="prev">&#10094;</button>
+    <button class="next">&#10095;</button>
+</div>
+
 <!-- SECCIÓN PRODUCTOS (cargados desde Supabase) -->
 <section class="template_property section-padding">
     <div class="container">
@@ -206,7 +246,7 @@
 </section>
 
 <!-- FOOTER -->
-<footer class="footer-area" style="background-image: url('{% static 'assets/img/footer.png' %}')">
+<footer class="footer-area">
     <div class="container">
         <div class="row">
             <div class="col-lg-12 text-center">
@@ -434,6 +474,26 @@
     });
 })(); // <-- Ahora la IIFE cierra correctamente al final de todo el bloque lógico
 </script>
+
+<!-- CARRUSEL -->
+<script>
+let index = 0;
+const slides = document.querySelector(".slides");
+const total = document.querySelectorAll(".slide").length;
+
+function showSlide(i) {
+    index = (i + total) % total;
+    slides.style.transform = `translateX(-${index * 100}%)`;
+}
+
+document.querySelector(".next").onclick = () => showSlide(index + 1);
+document.querySelector(".prev").onclick = () => showSlide(index - 1);
+
+// autoplay más suave
+setInterval(() => showSlide(index + 1), 4000);
+</script>
 {% endblock %}
+
+
 </body>
 </html>
