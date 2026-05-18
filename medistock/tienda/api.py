@@ -173,3 +173,18 @@ def api_health(request):
         'service': 'medistock-api',
         'version': '1.0',
     })
+
+@require_http_methods(['GET'])
+def api_ordenes(request):
+    """
+    GET /api/ordenes/
+    Lista todas las órdenes
+    """
+    data = _supabase_request('ordenes', params={'select': '*'})
+
+    if isinstance(data, dict) and 'error' in data:
+        return JsonResponse(data, status=500)
+
+    return JsonResponse({
+        'ordenes': data
+    })

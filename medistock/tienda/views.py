@@ -312,3 +312,40 @@ def api_productos(request):
         return JsonResponse({'count': len(data), 'productos': data})
     except Exception as e:
         return JsonResponse({'error': str(e), 'productos': []}, status=500)
+    #DASHBOARD AAAAAAAAAAAAAAAAAAA
+def dashboard(request):
+    return render(request, 'tienda/dashboard.html')
+from django.http import JsonResponse
+from supabase import create_client
+
+SUPABASE_URL = "https://ljzypuiqebttfmmgzsqk.supabase.co"
+SUPABASE_KEY = "sb_publishable_LM3_tYyHvBjdPQxqJwB-zA_u03mDQwR"
+
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+def api_dashboard(request):
+    try:
+        res = supabase.table('productos').select('*').execute()
+        productos = res.data
+
+        total_productos = len(productos)
+
+        total_inventario = sum(p['precio'] * p['cantidad'] for p in productos)
+
+        bajo_stock = len([p for p in productos if p['cantidad'] < 5])
+
+        # categorías
+        categorias = {}
+        for p in productos:
+            cat = p.get('categoria', 'Otros')
+            categorias[cat] = categorias.get(cat, 0) + 1
+
+        return JsonResponse({
+            'total_productos': total_productos,
+            'total_inventario': total_inventario,
+            'bajo_stock': bajo_stock,
+            'categorias': categorias
+        })
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)})

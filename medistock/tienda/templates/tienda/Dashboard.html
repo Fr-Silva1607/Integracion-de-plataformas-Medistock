@@ -1,0 +1,160 @@
+{% extends "tienda/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard - MediStock{% endblock %}
+
+{% block extra_css %}
+<style>
+.dashboard {
+    padding: 40px;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.metric-card h3 {
+    font-size: 18px;
+    color: #777;
+}
+
+.metric-card .value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.metric-card .icon {
+    font-size: 30px;
+    margin-bottom: 10px;
+    color: #667eea;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard container">
+    <h2 class="mb-4">Dashboard Administrativo</h2>
+
+    <div class="row">
+
+        <!-- TOTAL ORDENES -->
+        <div class="col-md-4">
+            <div class="metric-card">
+                <div class="icon"><i class="fa fa-shopping-cart"></i></div>
+                <h3>Total Órdenes</h3>
+                <div class="value" id="total-ordenes">0</div>
+            </div>
+        </div>
+
+        <!-- TOTAL VENTAS -->
+        <div class="col-md-4">
+            <div class="metric-card">
+                <div class="icon"><i class="fa fa-dollar"></i></div>
+                <h3>Total Ventas</h3>
+                <div class="value" id="total-ventas">$0</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="container mt-5">
+    <h2>Dashboard Admin</h2>
+
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h5>Total Productos</h5>
+                <h2 id="total-productos">0</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h5>Valor Inventario</h5>
+                <h2 id="total-inventario">$0</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h5>Bajo Stock</h5>
+                <h2 id="bajo-stock">0</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <canvas id="graficoCategorias"></canvas>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+async function cargarDashboard() {
+    try {
+        const response = await fetch('/api/ordenes/');
+        const data = await response.json();
+
+        if (!data || !data.ordenes) {
+            throw new Error('No se pudieron cargar datos');
+        }
+
+        const ordenes = data.ordenes;
+
+        // Total órdenes
+        document.getElementById('total-ordenes').textContent = ordenes.length;
+
+        // Total ventas
+        const totalVentas = ordenes.reduce((sum, o) => sum + (o.total || 0), 0);
+
+        document.getElementById('total-ventas').textContent =
+            '$' + totalVentas.toLocaleString('es-CL');
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', cargarDashboard);
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+async function cargarDashboard() {
+    const res = await fetch('/api/dashboard/');
+    const data = await res.json();
+
+    document.getElementById('total-productos').textContent = data.total_productos;
+    document.getElementById('total-inventario').textContent =
+        '$' + data.total_inventario.toLocaleString('es-CL');
+    document.getElementById('bajo-stock').textContent = data.bajo_stock;
+
+    // gráfico
+    const ctx = document.getElementById('graficoCategorias');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(data.categorias),
+            datasets: [{
+                label: 'Productos por categoría',
+                data: Object.values(data.categorias)
+            }]
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', cargarDashboard);
+</script>
+{% endblock %}

@@ -327,21 +327,10 @@
 <script src="{% static 'assets/js/scripts.js' %}"></script>
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 
 <script>
 (function() {
-    // 1. Credenciales bien definidas dentro del scope seguro
-    const SUPABASE_URL = "https://ljzypuiqebttfmmgzsqk.supabase.co"; 
-    const SUPABASE_KEY = "sb_publishable_LM3_tYyHvBjdPQxqJwB-zA_u03mDQwR";
-
-    // 2. Control anti-duplicación usando el objeto window
-    if (!window.supabaseClient) {
-        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    }
-
-    // 3. Asignación a la constante local segura
-    const supabase = window.supabaseClient;
 
     let allProducts = [];
 
@@ -425,39 +414,31 @@
 
     // ── Carga única y limpia desde Supabase ──
     async function loadProducts() {
-        const container = document.getElementById('products-container');
-        try {
-            const { data: products, error } = await supabase
-                .from('productos')
-                .select('*')
-                .order('categoria')
-                .limit(50);
+    const container = document.getElementById('products-container');
 
-            if (error) throw error;
+    try {
+        const res = await fetch('/api/productos/');
+        const data = await res.json();
 
-            if (!products || products.length === 0) {
-                container.innerHTML = '<div class="error-state"><p>No se encontraron productos en la base de datos.</p></div>';
-                return;
-            }
+        const products = data.productos;
 
-            allProducts = products; 
-            buildCategoryTabs(products);
-            
-            container.innerHTML = `<div class="products-grid">${products.map(renderCard).join('')}</div>`;
-            
-            if (window.WOW) new WOW({ live: false }).init();
-
-        } catch (err) {
-            console.error('Error cargando productos:', err);
-            container.innerHTML = `
-                <div class="error-state">
-                    <i class="fa fa-exclamation-triangle fa-2x"></i>
-                    <p>No se pudieron cargar los productos.<br>
-                    <small>${err.message || 'Error de conexión con Supabase'}</small>
-                    </p>
-                </div>`;
+        if (!products || products.length === 0) {
+            container.innerHTML = '<div class="error-state"><p>No hay productos.</p></div>';
+            return;
         }
+
+        allProducts = products;
+        buildCategoryTabs(products);
+
+        container.innerHTML = `<div class="products-grid">${products.map(renderCard).join('')}</div>`;
+
+        if (window.WOW) new WOW({ live: false }).init();
+
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = '<p>Error cargando productos</p>';
     }
+}
 
     // ── Carrito: conteo desde localStorage ──
     function updateCartCount() {

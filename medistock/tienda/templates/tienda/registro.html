@@ -259,7 +259,10 @@
 <script>
 const SUPABASE_URL = '{{ SUPABASE_URL }}';
 const SUPABASE_KEY = '{{ SUPABASE_KEY }}';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+if (!window.sb) {
+    window.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
+const sb = window.sb;
 
 // ── Mostrar/ocultar contraseña ──
 function togglePassword(inputId, icon) {

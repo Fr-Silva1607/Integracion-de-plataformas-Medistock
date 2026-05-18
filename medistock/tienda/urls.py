@@ -16,6 +16,10 @@ urlpatterns = [
     path('pago/', views.pago, name='pago'),
     path('perfil/', views.perfil, name='perfil'),
 
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('api/ordenes/', api.api_ordenes),
+    path('api/dashboard/', views.api_dashboard, name='api_dashboard'),
+
     path('webpay-iniciar/', views.webpay_iniciar, name='webpay_iniciar'),
     path('webpay-retorno/', views.webpay_retorno, name='webpay_retorno'),
 
@@ -24,3 +28,4 @@ urlpatterns = [
     path('api/calcular-total/', views.api_calcular_total, name='api_calcular_total'),
     path('api/status/', views.api_status, name='api_status'),
 ]
+
