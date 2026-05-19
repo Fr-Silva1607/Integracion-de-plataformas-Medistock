@@ -46,7 +46,8 @@
 
         <!-- Botones principales -->
         <div class="login-btn-group">
-            <button class="btn-aceptar" id="btn-login" onclick="handleLogin()">
+            <!-- Modificado para asegurar la llamada global a través de window -->
+            <button class="btn-aceptar" id="btn-login" onclick="window.handleLogin()">
                 <i class="fa fa-sign-in"></i> Ingresar
             </button>
             <button class="btn-cancelar" onclick="window.location.href='{% url 'home' %}'">
@@ -68,11 +69,9 @@
 </section>
 
 {% endblock %}
+
 {% block extra_js %}
 <script>
-// Asegurar que el cliente de Supabase esté disponible
-const sb = window.sb;
-
 // ── Mostrar/ocultar contraseña ──
 function togglePassword(inputId, icon) {
     const input = document.getElementById(inputId);
@@ -109,8 +108,8 @@ function showAlert(msg, type = 'error') {
     el.style.display = 'block';
 }
 
-// ── Proceso de Login Unificado (Persona vs Empresa) ──
-async function handleLogin() {
+// ── Proceso de Login Unificado asignado a Window ──
+window.handleLogin = async function() {
     if (!validateLogin()) return;
 
     const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
@@ -122,11 +121,19 @@ async function handleLogin() {
     document.getElementById('login-alert').style.display = 'none';
 
     try {
+        // Capturar la instancia de Supabase en tiempo de ejecución
+        const sb = window.sb;
+        if (!sb) {
+            showAlert('Error: No se pudo conectar con el cliente de base de datos.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-sign-in"></i> Ingresar';
+            return;
+        }
+
         let datosCuenta = null;
         let tipo = 'usuario';
 
         // 1. INTENTO DE LOGUEO 1: Buscar en la tabla 'usuario' (Persona Natural)
-        // Usamos .maybeSingle() para que devuelva null si no lo encuentra en vez de lanzar un error crítico
         const { data: usuario, error: errUser } = await sb
             .from('usuario')
             .select('id, nombre, gmail, contrasena')
@@ -136,7 +143,6 @@ async function handleLogin() {
         if (errUser) throw errUser;
 
         if (usuario) {
-            // Mapeamos los campos al formato estándar de sesión
             datosCuenta = {
                 id: usuario.id,
                 nombre: usuario.nombre,
@@ -155,7 +161,6 @@ async function handleLogin() {
             if (errEmp) throw errEmp;
 
             if (empresa) {
-                // Mapeamos los campos de la empresa al mismo formato estándar
                 datosCuenta = {
                     id: empresa.id,
                     nombre: empresa.nombre_empresa,
@@ -169,6 +174,8 @@ async function handleLogin() {
         // Si después de buscar en ambas tablas no encontramos nada
         if (!datosCuenta) {
             showAlert('El correo electrónico no se encuentra registrado.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-sign-in"></i> Ingresar';
             return;
         }
 
@@ -176,6 +183,8 @@ async function handleLogin() {
         const hashIngresado = await hashPassword(password);
         if (hashIngresado !== datosCuenta.password_hash) {
             showAlert('Contraseña incorrecta.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-sign-in"></i> Ingresar';
             return;
         }
 
@@ -195,7 +204,6 @@ async function handleLogin() {
     } catch (err) {
         console.error("Error en la autenticación:", err);
         showAlert('Error de conexión con la base de datos. Intenta nuevamente.');
-    } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa fa-sign-in"></i> Ingresar';
     }
@@ -214,7 +222,7 @@ async function hashPassword(password) {
 document.addEventListener('DOMContentLoaded', () => {
     // Permitir inicio de sesión presionando la tecla Enter en el input de contraseña
     document.getElementById('login-password').addEventListener('keydown', e => {
-        if (e.key === 'Enter') handleLogin();
+        if (e.key === 'Enter') window.handleLogin();
     });
 
     // Validar si ya existe una sesión guardada para evitar doble login
