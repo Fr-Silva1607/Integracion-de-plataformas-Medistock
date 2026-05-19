@@ -70,7 +70,7 @@
 {% endblock %}
 {% block extra_js %}
 <script>
-// Usar el cliente global de Supabase
+// Asegurar que el cliente de Supabase esté disponible
 const sb = window.sb;
 
 // ── Mostrar/ocultar contraseña ──
@@ -81,7 +81,7 @@ function togglePassword(inputId, icon) {
     icon.innerHTML = isPassword ? '<i class="fa fa-eye-slash"></i>' : '<i class="fa fa-eye"></i>';
 }
 
-// Validación inicial frontend
+// ── Validación de Campos del Frontend ──
 function validateLogin() {
     let valid = true;
     const email    = document.getElementById('login-email').value.trim();
@@ -101,7 +101,7 @@ function validateLogin() {
     return valid;
 }
 
-// Alerta en pantalla
+// ── Desplegar Alertas en Pantalla ──
 function showAlert(msg, type = 'error') {
     const el = document.getElementById('login-alert');
     el.className = 'login-alert ' + type;
@@ -109,7 +109,7 @@ function showAlert(msg, type = 'error') {
     el.style.display = 'block';
 }
 
-// ── Login unificado: busca en tabla 'usuario' (personas) y 'empresas' ──
+// ── Proceso de Login Unificado (Persona vs Empresa) ──
 async function handleLogin() {
     if (!validateLogin()) return;
 
@@ -125,8 +125,8 @@ async function handleLogin() {
         let datosCuenta = null;
         let tipo = 'usuario';
 
-        // 1. INTENTAR BUSCAR EN LA TABLA 'usuario' (Campos: gmail, contrasena)
-        // Usamos .maybeSingle() para que no rompa el flujo si devuelve 0 filas
+        // 1. INTENTO DE LOGUEO 1: Buscar en la tabla 'usuario' (Persona Natural)
+        // Usamos .maybeSingle() para que devuelva null si no lo encuentra en vez de lanzar un error crítico
         const { data: usuario, error: errUser } = await sb
             .from('usuario')
             .select('id, nombre, gmail, contrasena')
@@ -136,6 +136,7 @@ async function handleLogin() {
         if (errUser) throw errUser;
 
         if (usuario) {
+            // Mapeamos los campos al formato estándar de sesión
             datosCuenta = {
                 id: usuario.id,
                 nombre: usuario.nombre,
@@ -144,8 +145,7 @@ async function handleLogin() {
             };
             tipo = 'usuario';
         } else {
-            // 2. SI NO EXISTE EN USUARIOS, BUSCAR EN 'empresas'
-            // (Ajusta los nombres si tu tabla empresas también cambió a singular o usa 'gmail')
+            // 2. INTENTO DE LOGUEO 2: Si no era persona, buscamos en 'empresas'
             const { data: empresa, error: errEmp } = await sb
                 .from('empresas')
                 .select('id, nombre_empresa, email, password_hash')
@@ -155,6 +155,7 @@ async function handleLogin() {
             if (errEmp) throw errEmp;
 
             if (empresa) {
+                // Mapeamos los campos de la empresa al mismo formato estándar
                 datosCuenta = {
                     id: empresa.id,
                     nombre: empresa.nombre_empresa,
@@ -165,20 +166,20 @@ async function handleLogin() {
             }
         }
 
-        // Si no se encontró en ninguna de las dos tablas
+        // Si después de buscar en ambas tablas no encontramos nada
         if (!datosCuenta) {
             showAlert('El correo electrónico no se encuentra registrado.');
             return;
         }
 
-        // 3. VERIFICAR LA CONTRASEÑA ENCRIPTADA
+        // 3. VERIFICACIÓN DE CREDENCIALES (Hash SHA-256)
         const hashIngresado = await hashPassword(password);
         if (hashIngresado !== datosCuenta.password_hash) {
             showAlert('Contraseña incorrecta.');
             return;
         }
 
-        // 4. GUARDAR SESIÓN EN LOCALSTORAGE
+        // 4. PERSISTENCIA DE LA SESIÓN EN EL NAVEGADOR
         localStorage.setItem('medistock_session', JSON.stringify({
             id: datosCuenta.id,
             nombre: datosCuenta.nombre,
@@ -188,19 +189,19 @@ async function handleLogin() {
 
         showAlert('¡Bienvenido/a, ' + datosCuenta.nombre + '!', 'success');
         
-        // Redirigir tras el éxito
+        // Redirección al index
         setTimeout(() => window.location.href = '/', 1200);
 
     } catch (err) {
-        console.error("Error en el proceso de autenticación:", err);
-        showAlert('Ocurrió un error en la conexión. Intenta nuevamente.');
+        console.error("Error en la autenticación:", err);
+        showAlert('Error de conexión con la base de datos. Intenta nuevamente.');
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa fa-sign-in"></i> Ingresar';
     }
 }
 
-// ── Hash de contraseña SHA-256 (Mismo algoritmo del registro) ──
+// ── Algoritmo de Hash (SHA-256) ──
 async function hashPassword(password) {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -209,13 +210,14 @@ async function hashPassword(password) {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// ── Controladores de Eventos del DOM ──
 document.addEventListener('DOMContentLoaded', () => {
-    // Detectar tecla Enter en el campo de contraseña
+    // Permitir inicio de sesión presionando la tecla Enter en el input de contraseña
     document.getElementById('login-password').addEventListener('keydown', e => {
         if (e.key === 'Enter') handleLogin();
     });
 
-    // Validar si ya cuenta con una sesión activa en el localStorage
+    // Validar si ya existe una sesión guardada para evitar doble login
     const session = localStorage.getItem('medistock_session');
     if (session) {
         window.location.href = '/';
