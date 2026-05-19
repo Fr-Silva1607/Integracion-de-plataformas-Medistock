@@ -68,9 +68,11 @@
 </section>
 
 {% endblock %}
-
 {% block extra_js %}
 <script>
+// Usar el cliente global de Supabase
+const sb = window.sb;
+
 // ── Mostrar/ocultar contraseña ──
 function togglePassword(inputId, icon) {
     const input = document.getElementById(inputId);
@@ -79,7 +81,7 @@ function togglePassword(inputId, icon) {
     icon.innerHTML = isPassword ? '<i class="fa fa-eye-slash"></i>' : '<i class="fa fa-eye"></i>';
 }
 
-// validacion
+// Validación inicial frontend
 function validateLogin() {
     let valid = true;
     const email    = document.getElementById('login-email').value.trim();
@@ -99,7 +101,7 @@ function validateLogin() {
     return valid;
 }
 
-// alerta
+// Alerta en pantalla
 function showAlert(msg, type = 'error') {
     const el = document.getElementById('login-alert');
     el.className = 'login-alert ' + type;
@@ -107,79 +109,98 @@ function showAlert(msg, type = 'error') {
     el.style.display = 'block';
 }
 
-//  Login: busca en tabla usuarios y empresas
+// ── Login unificado: busca en tabla 'usuario' (personas) y 'empresas' ──
 async function handleLogin() {
     if (!validateLogin()) return;
 
-    const email    = document.getElementById('login-email').value.trim().toLowerCase();
-    const password = document.getElementById('login-password').value;
-    const btn      = document.getElementById('btn-login');
+    const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
+    const password   = document.getElementById('login-password').value;
+    const btn        = document.getElementById('btn-login');
 
     btn.disabled = true;
     btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Verificando...';
     document.getElementById('login-alert').style.display = 'none';
 
     try {
-        // Buscar en tabla usuarios
-        let { data: usuario } = await sb
-            .from('usuarios')
-            .select('id, nombre, email, password_hash, activo')
-            .eq('email', email)
-            .single();
-
-        // Si no encontró, buscar en tabla empresas
+        let datosCuenta = null;
         let tipo = 'usuario';
-        if (!usuario) {
-            const { data: empresa } = await sb
+
+        // 1. INTENTAR BUSCAR EN LA TABLA 'usuario' (Campos: gmail, contrasena)
+        // Usamos .maybeSingle() para que no rompa el flujo si devuelve 0 filas
+        const { data: usuario, error: errUser } = await sb
+            .from('usuario')
+            .select('id, nombre, gmail, contrasena')
+            .eq('gmail', emailInput)
+            .maybeSingle();
+
+        if (errUser) throw errUser;
+
+        if (usuario) {
+            datosCuenta = {
+                id: usuario.id,
+                nombre: usuario.nombre,
+                email: usuario.gmail,
+                password_hash: usuario.contrasena
+            };
+            tipo = 'usuario';
+        } else {
+            // 2. SI NO EXISTE EN USUARIOS, BUSCAR EN 'empresas'
+            // (Ajusta los nombres si tu tabla empresas también cambió a singular o usa 'gmail')
+            const { data: empresa, error: errEmp } = await sb
                 .from('empresas')
-                .select('id, nombre_empresa, email, password_hash, activo')
-                .eq('email', email)
-                .single();
+                .select('id, nombre_empresa, email, password_hash')
+                .eq('email', emailInput)
+                .maybeSingle();
+
+            if (errEmp) throw errEmp;
 
             if (empresa) {
-                usuario = { ...empresa, nombre: empresa.nombre_empresa };
+                datosCuenta = {
+                    id: empresa.id,
+                    nombre: empresa.nombre_empresa,
+                    email: empresa.email,
+                    password_hash: empresa.password_hash
+                };
                 tipo = 'empresa';
             }
         }
 
-        if (!usuario) {
-            showAlert('Correo no registrado en el sistema.');
+        // Si no se encontró en ninguna de las dos tablas
+        if (!datosCuenta) {
+            showAlert('El correo electrónico no se encuentra registrado.');
             return;
         }
 
-        if (!usuario.activo) {
-            showAlert('Tu cuenta está desactivada. Contacta a soporte.');
-            return;
-        }
-
-        // Verificar contraseña
+        // 3. VERIFICAR LA CONTRASEÑA ENCRIPTADA
         const hashIngresado = await hashPassword(password);
-        if (hashIngresado !== usuario.password_hash) {
+        if (hashIngresado !== datosCuenta.password_hash) {
             showAlert('Contraseña incorrecta.');
             return;
         }
 
-        // Guardar sesión en localStorage
+        // 4. GUARDAR SESIÓN EN LOCALSTORAGE
         localStorage.setItem('medistock_session', JSON.stringify({
-            id: usuario.id,
-            nombre: usuario.nombre,
-            email: usuario.email,
+            id: datosCuenta.id,
+            nombre: datosCuenta.nombre,
+            email: datosCuenta.email,
             tipo: tipo,
         }));
 
-        showAlert('¡Bienvenido, ' + usuario.nombre + '!', 'success');
+        showAlert('¡Bienvenido/a, ' + datosCuenta.nombre + '!', 'success');
+        
+        // Redirigir tras el éxito
         setTimeout(() => window.location.href = '/', 1200);
 
     } catch (err) {
-        console.error(err);
-        showAlert('Error de conexión. Intenta nuevamente.');
+        console.error("Error en el proceso de autenticación:", err);
+        showAlert('Ocurrió un error en la conexión. Intenta nuevamente.');
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa fa-sign-in"></i> Ingresar';
     }
 }
 
-// ── Hash de contraseña SHA-256 ──
+// ── Hash de contraseña SHA-256 (Mismo algoritmo del registro) ──
 async function hashPassword(password) {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -189,13 +210,14 @@ async function hashPassword(password) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Enter para login
+    // Detectar tecla Enter en el campo de contraseña
     document.getElementById('login-password').addEventListener('keydown', e => {
         if (e.key === 'Enter') handleLogin();
     });
 
-    // Si ya está logeado, redirigir
-    if (typeof isLoggedIn === 'function' && isLoggedIn()) {
+    // Validar si ya cuenta con una sesión activa en el localStorage
+    const session = localStorage.getItem('medistock_session');
+    if (session) {
         window.location.href = '/';
     }
 });
