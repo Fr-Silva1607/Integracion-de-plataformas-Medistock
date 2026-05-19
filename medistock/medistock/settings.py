@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Seguridad
 SECRET_KEY = 'django-insecure-cambiar-esto-en-produccion'
-DEBUG = True
+DEBUG = os.environ.get('VERCEL') is None
 ALLOWED_HOSTS = ['.vercel.app', '127.0.0.1', 'localhost']
 
 # Apps
