@@ -46,7 +46,6 @@
 
         <!-- Botones principales -->
         <div class="login-btn-group">
-            <!-- Modificado para asegurar la llamada global a través de window -->
             <button class="btn-aceptar" id="btn-login" onclick="window.handleLogin()">
                 <i class="fa fa-sign-in"></i> Ingresar
             </button>
@@ -71,6 +70,21 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Configuración de Supabase integrada al inicio del bloque JS -->
+<script>
+    // Configuración de Supabase
+    const SUPABASE_URL = '{{ SUPABASE_URL }}';
+    const SUPABASE_KEY = '{{ SUPABASE_KEY }}';
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Actualizar navbar cuando carga la página
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof updateNavbar === 'function') updateNavbar();
+        if (window.WOW) new WOW().init();
+    });
+</script>
+
+<!-- Script operativo de autenticación usando 'sb' -->
 <script>
 // ── Mostrar/ocultar contraseña ──
 function togglePassword(inputId, icon) {
@@ -121,8 +135,7 @@ window.handleLogin = async function() {
     document.getElementById('login-alert').style.display = 'none';
 
     try {
-        // Capturar la instancia de Supabase en tiempo de ejecución
-        const sb = window.sb;
+        // Validación de respaldo por si acaso
         if (!sb) {
             showAlert('Error: No se pudo conectar con el cliente de base de datos.');
             btn.disabled = false;

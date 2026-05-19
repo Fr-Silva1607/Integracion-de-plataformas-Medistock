@@ -199,9 +199,7 @@
     // Configuración de Supabase
     const SUPABASE_URL = '{{ SUPABASE_URL }}';
     const SUPABASE_KEY = '{{ SUPABASE_KEY }}';
-    
-    // ASIGNACIÓN GLOBAL EXPLÍCITA: Cambiado de 'const sb = ...' a 'window.sb = ...'
-    window.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // Actualizar navbar cuando carga la página
     document.addEventListener('DOMContentLoaded', function() {
