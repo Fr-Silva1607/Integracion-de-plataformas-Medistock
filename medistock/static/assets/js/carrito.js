@@ -509,9 +509,3 @@ async function saveCotizacion(cart, user) {
         console.error('Error guardando cotización:', err);
     }
 }
-
-// En tu archivo JS estático (ej: tienda.js)
-import { injectSpeedInsights } from 'https://esm.sh/@vercel/speed-insights';
-
-// Lo ejecutas una sola vez
-injectSpeedInsights();
