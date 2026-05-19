@@ -196,7 +196,6 @@
 </section>
 
 {% endblock %}
-
 {% block extra_js %}
 <script>
 // Mantenemos la constante de Django intacta arriba
@@ -255,16 +254,17 @@ function mostrarResumen(cart) {
         </div>
     `).join('');
 
-    // Calcular totales
+    // Calcular totales (Redondeando el IVA para evitar decimales molestos en Webpay)
     const subtotal = cart.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-    const iva = subtotal * 0.19;
+    const iva = Math.round(subtotal * 0.19);
     const total = subtotal + iva;
 
     document.getElementById('resumen-subtotal').textContent = `$${subtotal.toLocaleString('es-CL')}`;
     document.getElementById('resumen-iva').textContent = `$${iva.toLocaleString('es-CL')}`;
     document.getElementById('resumen-total').textContent = `$${total.toLocaleString('es-CL')}`;
 
-    window.totalAPagar = total;
+    // Guardar el valor entero exacto en el objeto global
+    window.totalAPagar = parseInt(total, 10);
 }
 
 // Validar formulario
@@ -278,9 +278,9 @@ function validarFormulario() {
 
     for (const id of camposRequeridos) {
         const el = document.getElementById(id);
-        if (!el.value.trim()) {
-            alert(`Por favor completa el campo: ${el.previousElementSibling.textContent}`);
-            el.focus();
+        if (!el || !el.value.trim()) {
+            alert(`Por favor completa todos los campos obligatorios.`);
+            if (el) el.focus();
             return false;
         }
     }
@@ -295,14 +295,20 @@ function validarFormulario() {
 
 // Iniciar el pago real con Transbank Webpay Plus
 async function iniciarPagoTransbank() {
-    try {
-        // 1. Rescatamos el ID de la orden directamente desde los parámetros de la URL actual
-        const urlParams = new URLSearchParams(window.location.search);
-        const ordenId = urlParams.get('orden') || "18";
+    // 1. Validar que el formulario de envío esté completo antes de cobrar
+    if (!validarFormulario()) return;
 
-        
-        let montoTexto = document.querySelector('.total-pagar')?.innerText || "7140";
-        let montoLimpio = parseInt(montoTexto.replace(/[^0-9]/g, ''), 10) || 7140;
+    const btnPagar = document.getElementById('btn-pagar');
+    btnPagar.disabled = true;
+    btnPagar.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Conectando con Transbank...';
+
+    try {
+        // 2. Rescatar el ID de la orden desde la URL o el contexto de Django
+        const urlParams = new URLSearchParams(window.location.search);
+        const ordenId = urlParams.get('orden') || ordenIdContexto || "18";
+
+        // 3. Tomar el total calculado dinámicamente
+        let montoLimpio = window.totalAPagar || 7140;
 
         console.log("Enviando datos al backend:", { amount: montoLimpio, orden_id: ordenId });
 
@@ -311,7 +317,7 @@ async function iniciarPagoTransbank() {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}' // Asegúrate de que Django renderice esto
+                'X-CSRFToken': '{{ csrf_token }}'
             },
             body: JSON.stringify({
                 amount: montoLimpio,
@@ -341,6 +347,10 @@ async function iniciarPagoTransbank() {
     } catch (error) {
         console.error("Error procesando pago:", error);
         alert("Hubo un problema al conectar con Transbank: " + error.message);
+        
+        // Reactivar el botón si algo falla
+        btnPagar.disabled = false;
+        btnPagar.innerHTML = '<i class="fa fa-lock"></i> Pagar con Transbank';
     }
 }
 </script>
