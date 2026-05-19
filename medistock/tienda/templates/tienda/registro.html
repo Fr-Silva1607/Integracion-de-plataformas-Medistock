@@ -376,6 +376,7 @@ function showAlert(msg, type = 'error') {
 }
 
 // Registro 
+// Registro 
 async function handleRegistro() {
     if (!validateForm()) return;
 
@@ -385,24 +386,37 @@ async function handleRegistro() {
     document.getElementById('reg-alert').style.display = 'none';
 
     try {
-        const email = document.getElementById('email').value.trim().toLowerCase();
+        const emailInput = document.getElementById('email').value.trim().toLowerCase();
+        const rutInput = document.getElementById('rut').value.trim();
 
-        // Verificar si ya existe
-        const { data: existe } = await sb.from('usuarios').select('id').eq('email', email).single();
-        if (existe) { showAlert('Este correo ya está registrado.'); return; }
+        // 1. Verificar si ya existe el usuario por Gmail o por RUT
+        const { data: existe, error: checkError } = await sb
+            .from('usuario')
+            .select('id')
+            .or(`gmail.eq.${emailInput},rut.eq.${rutInput}`)
+            .maybeSingle();
 
+        if (existe) { 
+            showAlert('El RUT o el correo ya se encuentran registrados.'); 
+            return; 
+        }
+
+        // Encriptar contraseña en SHA-256
         const passwordHash = await hashPassword(document.getElementById('password').value);
 
-        const { error } = await sb.from('usuarios').insert([{
-            rut:       document.getElementById('rut').value.trim(),
-            nombre:    document.getElementById('nombre').value.trim(),
-            apellido:  document.getElementById('apellido').value.trim(),
-            email:     email,
-            telefono:  document.getElementById('telefono').value.trim(),
-            region:    document.getElementById('region').value,
-            comuna:    document.getElementById('comuna').value.trim(),
-            direccion: document.getElementById('direccion').value.trim(),
-            password_hash: passwordHash,
+        // 2. Insertar TODOS los datos recopilados en la tabla 'usuario'
+        const { error } = await sb.from('usuario').insert([{
+            rut:              rutInput,
+            nombre:           document.getElementById('nombre').value.trim(),
+            apellido:         document.getElementById('apellido').value.trim(),
+            fecha_nacimiento: document.getElementById('fecha_nac').value,
+            genero:           document.getElementById('genero').value,
+            gmail:            emailInput,
+            telefono:         document.getElementById('telefono').value.trim(),
+            region:           document.getElementById('region').value,
+            comuna:           document.getElementById('comuna').value.trim(),
+            direccion:        document.getElementById('direccion').value.trim(),
+            contrasena:       passwordHash
         }]);
 
         if (error) throw error;
@@ -411,9 +425,12 @@ async function handleRegistro() {
         setTimeout(() => window.location.href = '/login/', 2000);
 
     } catch (err) {
-        console.error(err);
-        if (err.code === '23505') showAlert('El RUT o correo ya está registrado.');
-        else showAlert('Error al registrar. Intenta nuevamente.');
+        console.error("Error completo de Supabase:", err);
+        if (err.code === '23505') {
+            showAlert('El RUT o correo ya está registrado en el sistema.');
+        } else {
+            showAlert('Error al registrar en la base de datos. Intenta nuevamente.');
+        }
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa fa-user-plus"></i> Crear Cuenta';
