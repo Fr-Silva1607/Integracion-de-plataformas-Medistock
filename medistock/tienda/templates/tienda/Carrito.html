@@ -137,7 +137,15 @@
 <script src="{% static 'assets/js/cotizacion.js' %}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        loadCarritoPage();
+        // Le damos un respiro al navegador para mapear las funciones de los JS externos
+        setTimeout(function() {
+            if (typeof loadCarritoPage === 'function') {
+                loadCarritoPage();
+            } else {
+                console.error("Critical: El archivo carrito.js se cargó, pero no contiene la función loadCarritoPage.");
+            }
+        }, 50); 
     });
 </script>
+{% endblock %}
 {% endblock %}
