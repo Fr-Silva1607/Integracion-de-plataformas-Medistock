@@ -1,0 +1,151 @@
+{% extends "tienda/base.html" %}
+{% load static %}
+
+{% block title %}Carrito de Compras - MediStock{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/css/carrito.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="carrito-section">
+    <div class="container">
+        <h1>Mi Carrito de Compras</h1>
+
+        <div class="row">
+            <!-- TABLA DE ITEMS -->
+            <div class="col-lg-8">
+                <div class="carrito-table-container">
+                    <table class="carrito-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Precio</th>
+                                <th>Cantidad</th>
+                                <th>Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="carrito-body">
+                            <tr>
+                                <td colspan="5" class="text-center">Cargando carrito...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="botones-acciones">
+                    <a href="{% url 'productos' %}" class="btn btn-secondary">
+                        <i class="fa fa-arrow-left"></i> Continuar comprando
+                    </a>
+                    <button onclick="actualizarCarrito()" class="btn btn-secondary">
+                        <i class="fa fa-refresh"></i> Actualizar carrito
+                    </button>
+                </div>
+            </div>
+
+            <!-- RESUMEN -->
+            <div class="col-lg-4">
+                <div class="resumen-compra">
+                    <h4>Resumen de Compra</h4>
+
+                    <div class="resumen-item">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">$0</span>
+                    </div>
+
+                    <div class="resumen-item">
+                        <span>IVA (19%):</span>
+                        <span id="iva">$0</span>
+                    </div>
+
+                    <div class="resumen-divider"></div>
+
+                    <div class="resumen-total">
+                        <span>Total:</span>
+                        <span id="total">$0</span>
+                    </div>
+
+                    <!-- Tipo de usuario -->
+                    <div class="tipo-usuario" id="tipo-usuario" style="display: none;">
+                        <p id="texto-usuario">Compra como: <strong>Persona</strong></p>
+                    </div>
+
+                    <!-- BOTONES SEGÚN TIPO -->
+                    <div id="botones-personal" style="display: none;">
+                        <button onclick="procederAlPago()" class="btn btn-primary btn-block btn-lg">
+                            <i class="fa fa-credit-card"></i> Ir a Pago
+                        </button>
+                    </div>
+
+                    <div id="botones-empresa" style="display: none;">
+                        <button onclick="generarCotizacion()" class="btn btn-secondary btn-block mb-2">
+                            <i class="fa fa-file-pdf"></i> Descargar Cotización
+                        </button>
+                        <button onclick="procederAlPago()" class="btn btn-primary btn-block btn-lg">
+                            <i class="fa fa-credit-card"></i> Ir a Pago
+                        </button>
+                    </div>
+
+                    <!-- Carrito vacío -->
+                    <div id="carrito-vacio" class="alert alert-info">
+                        <i class="fa fa-info-circle"></i> Tu carrito está vacío
+                    </div>
+
+                    <!-- Términos -->
+                    <div class="terminos-aviso">
+                        <p class="texto-pequeno">
+                            Al continuar, aceptas nuestros <a href="#">términos y condiciones</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal para cambiar cantidad -->
+<div class="modal" id="modal-cantidad" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cambiar cantidad</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="number" id="nueva-cantidad" class="form-control" min="1">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="confirmaCambioyCantidad()">
+                    Actualizar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- html2pdf para generar cotizaciones PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="{% static 'assets/js/carrito.js' %}"></script>
+<script src="{% static 'assets/js/cotizacion.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Le damos un respiro al navegador para mapear las funciones de los JS externos
+        setTimeout(function() {
+            if (typeof loadCarritoPage === 'function') {
+                loadCarritoPage();
+            } else {
+                console.error("Critical: El archivo carrito.js se cargó, pero no contiene la función loadCarritoPage.");
+            }
+        }, 50); 
+    });
+</script>
+{% endblock %}
+

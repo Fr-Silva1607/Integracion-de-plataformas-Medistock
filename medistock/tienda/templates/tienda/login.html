@@ -1,0 +1,248 @@
+{% extends "tienda/base.html" %}
+{% load static %}
+
+{% block title %}MediStock — Login{% endblock %}
+
+{% block body_class %}page-login{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/css/index.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- LOGIN -->
+<section class="login-section">
+    <div class="login-card wow fadeInUp" data-wow-duration="0.6s">
+
+        <div class="login-logo">
+            <img src="{% static 'assets/img/MediStock.logo.webp' %}" alt="MediStock">
+        </div>
+        <h2 class="login-title">Iniciar Sesión</h2>
+        <p class="login-subtitle">Ingresa tus credenciales para continuar</p>
+
+        <!-- Alerta de error -->
+        <div class="login-alert" id="login-alert" style="display:none;"></div>
+
+        <!-- Campo email -->
+        <div class="form-group-login">
+            <label for="login-email"><i class="fa fa-envelope"></i> Correo electrónico</label>
+            <input type="email" id="login-email" class="input-login" placeholder="correo@ejemplo.com" autocomplete="email">
+            <span class="field-error" id="err-email"></span>
+        </div>
+
+        <!-- Campo contraseña -->
+        <div class="form-group-login">
+            <label for="login-password"><i class="fa fa-lock"></i> Contraseña</label>
+            <div class="input-password-wrap">
+                <input type="password" id="login-password" class="input-login" placeholder="Tu contraseña" autocomplete="current-password">
+                <span class="toggle-password" onclick="togglePassword('login-password', this)">
+                    <i class="fa fa-eye"></i>
+                </span>
+            </div>
+            <span class="field-error" id="err-password"></span>
+        </div>
+
+        <!-- Botones principales -->
+        <div class="login-btn-group">
+            <button class="btn-aceptar" id="btn-login" onclick="window.handleLogin()">
+                <i class="fa fa-sign-in"></i> Ingresar
+            </button>
+            <button class="btn-cancelar" onclick="window.location.href='{% url 'home' %}'">
+                <i class="fa fa-times"></i> Cancelar
+            </button>
+        </div>
+
+        <!-- Botones de registro -->
+        <div class="register-btns">
+            <button class="btn-registro-persona" onclick="window.location.href='/registro/'">
+                <i class="fa fa-user-plus"></i> Registrarse como Persona
+            </button>
+            <button class="btn-registro-empresa" onclick="window.location.href='/registro-empresa/'">
+                <i class="fa fa-building"></i> Registrarse como Empresa
+            </button>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Configuración de Supabase integrada al inicio del bloque JS -->
+<script>
+    // Configuración de Supabase
+    const SUPABASE_URL = '{{ SUPABASE_URL }}';
+    const SUPABASE_KEY = '{{ SUPABASE_KEY }}';
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Actualizar navbar cuando carga la página
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof updateNavbar === 'function') updateNavbar();
+        if (window.WOW) new WOW().init();
+    });
+</script>
+
+<!-- Script operativo de autenticación usando 'sb' -->
+<script>
+// ── Mostrar/ocultar contraseña ──
+function togglePassword(inputId, icon) {
+    const input = document.getElementById(inputId);
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    icon.innerHTML = isPassword ? '<i class="fa fa-eye-slash"></i>' : '<i class="fa fa-eye"></i>';
+}
+
+// ── Validación de Campos del Frontend ──
+function validateLogin() {
+    let valid = true;
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+
+    document.getElementById('err-email').textContent    = '';
+    document.getElementById('err-password').textContent = '';
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.getElementById('err-email').textContent = 'Ingresa un correo válido.';
+        valid = false;
+    }
+    if (!password || password.length < 6) {
+        document.getElementById('err-password').textContent = 'La contraseña debe tener al menos 6 caracteres.';
+        valid = false;
+    }
+    return valid;
+}
+
+// ── Desplegar Alertas en Pantalla ──
+function showAlert(msg, type = 'error') {
+    const el = document.getElementById('login-alert');
+    el.className = 'login-alert ' + type;
+    el.textContent = msg;
+    el.style.display = 'block';
+}
+
+// ── Proceso de Login Unificado asignado a Window ──
+window.handleLogin = async function() {
+    if (!validateLogin()) return;
+
+    const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
+    const password   = document.getElementById('login-password').value;
+    const btn        = document.getElementById('btn-login');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Verificando...';
+    document.getElementById('login-alert').style.display = 'none';
+
+    try {
+        // Validación de respaldo por si acaso
+        if (!sb) {
+            showAlert('Error: No se pudo conectar con el cliente de base de datos.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-sign-in"></i> Ingresar';
+            return;
+        }
+
+        let datosCuenta = null;
+        let tipo = 'usuario';
+
+        // 1. INTENTO DE LOGUEO 1: Buscar en la tabla 'usuario' (Persona Natural)
+        const { data: usuario, error: errUser } = await sb
+            .from('usuario')
+            .select('id, nombre, gmail, contrasena')
+            .eq('gmail', emailInput)
+            .maybeSingle();
+
+        if (errUser) throw errUser;
+
+        if (usuario) {
+            datosCuenta = {
+                id: usuario.id,
+                nombre: usuario.nombre,
+                email: usuario.gmail,
+                password_hash: usuario.contrasena
+            };
+            tipo = 'usuario';
+        } else {
+            // 2. INTENTO DE LOGUEO 2: Si no era persona, buscamos en 'empresas'
+            const { data: empresa, error: errEmp } = await sb
+                .from('empresas')
+                .select('id, nombre_empresa, email, password_hash')
+                .eq('email', emailInput)
+                .maybeSingle();
+
+            if (errEmp) throw errEmp;
+
+            if (empresa) {
+                datosCuenta = {
+                    id: empresa.id,
+                    nombre: empresa.nombre_empresa,
+                    email: empresa.email,
+                    password_hash: empresa.password_hash
+                };
+                tipo = 'empresa';
+            }
+        }
+
+        // Si después de buscar en ambas tablas no encontramos nada
+        if (!datosCuenta) {
+            showAlert('El correo electrónico no se encuentra registrado.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-sign-in"></i> Ingresar';
+            return;
+        }
+
+        // 3. VERIFICACIÓN DE CREDENCIALES (Hash SHA-256)
+        const hashIngresado = await hashPassword(password);
+        if (hashIngresado !== datosCuenta.password_hash) {
+            showAlert('Contraseña incorrecta.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-sign-in"></i> Ingresar';
+            return;
+        }
+
+        // 4. PERSISTENCIA DE LA SESIÓN EN EL NAVEGADOR
+        localStorage.setItem('medistock_session', JSON.stringify({
+            id: datosCuenta.id,
+            nombre: datosCuenta.nombre,
+            email: datosCuenta.email,
+            tipo: tipo,
+        }));
+
+        showAlert('¡Bienvenido/a, ' + datosCuenta.nombre + '!', 'success');
+        
+        // Redirección al index
+        setTimeout(() => window.location.href = '/', 1200);
+
+    } catch (err) {
+        console.error("Error en la autenticación:", err);
+        showAlert('Error de conexión con la base de datos. Intenta nuevamente.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-sign-in"></i> Ingresar';
+    }
+}
+
+// ── Algoritmo de Hash (SHA-256) ──
+async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray  = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ── Controladores de Eventos del DOM ──
+document.addEventListener('DOMContentLoaded', () => {
+    // Permitir inicio de sesión presionando la tecla Enter en el input de contraseña
+    document.getElementById('login-password').addEventListener('keydown', e => {
+        if (e.key === 'Enter') window.handleLogin();
+    });
+
+    // Validar si ya existe una sesión guardada para evitar doble login
+    const session = localStorage.getItem('medistock_session');
+    if (session) {
+        window.location.href = '/';
+    }
+});
+</script>
+{% endblock %}

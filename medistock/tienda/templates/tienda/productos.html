@@ -1,0 +1,342 @@
+{% extends "tienda/base.html" %}
+{% load static %}
+
+{% block title %}MediStock — Productos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/css/index.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/productos.css' %}">
+<style>
+    /* Estilos de respaldo por si el CSS falla en renderizar la grilla */
+    .productos-grid-layout {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 20px !important;
+        justify-content: flex-start !important;
+        padding: 20px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- PRODUCTOS HEADER -->
+<section class="productos-header" style="padding-top: 3rem;">
+    <h1>Nuestros Productos</h1>
+    <p>Encuentra todo lo que necesitas para tu negocio médico</p>
+</section>
+
+<!-- PRODUCTOS SECTION -->
+<section class="productos-section container">
+
+    <!-- FILTROS -->
+    <div class="productos-filters">
+        <div class="filter-group">
+            <label for="buscar">Buscar:</label>
+            <input type="text" id="buscar" class="filter-input" placeholder="Nombre del producto...">
+        </div>
+        <div class="filter-group">
+            <label for="categoria">Categoría:</label>
+            <select id="categoria" class="filter-select">
+                <option value="">Todas</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="precio">Precio máximo:</label>
+            <input type="number" id="precio" class="filter-input" placeholder="$" min="0">
+        </div>
+        <div class="filter-group">
+            <label for="ordenar">Ordenar:</label>
+            <select id="ordenar" class="filter-select">
+                <option value="nombre">Nombre A-Z</option>
+                <option value="precio-asc">Precio: menor a mayor</option>
+                <option value="precio-desc">Precio: mayor a menor</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- LOADING -->
+    <div id="loading-state" class="loading-state" style="text-align: center; padding: 3rem 0;">
+        <div class="spinner"></div>
+        <p>Cargando productos...</p>
+    </div>
+
+    <!-- PRODUCTOS GRID -->
+    <div class="productos-container productos-grid-layout" id="productos-grid">
+
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div class="empty-state" id="empty-state" style="display:none; text-align: center; padding: 3rem 0;">
+        <i class="fa fa-inbox" style="font-size: 3rem; color: #ccc;"></i>
+        <p>No se encontraron productos que coincidan con tus filtros.</p>
+    </div>
+
+</section>
+{% endblock %}
+{% block extra_js %}
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+// configuracion de supabase
+if (!window.sb) {
+    const supabaseUrl = "https://ljzypuiqebttfmmgzsqk.supabase.co"; 
+    const supabaseKey = "sb_publishable_LM3_tYyHvBjdPQxqJwB-zA_u03mDQwR";
+    window.sb = supabase.createClient(supabaseUrl, supabaseKey);
+}
+
+
+window.allProductosListado = window.allProductosListado || [];
+
+// configuracion de pesos chilenos
+function formatPrice(price) {
+    return '$ ' + Number(price).toLocaleString('es-CL');
+}
+
+// tipo venta
+function getBadge(tipo) {
+    const map = {
+        'receta':   ['badge-prescription', 'VENTA BAJO RECETA'],
+        'empresa':  ['badge-controlled',   'SOLO EMPRESAS'],
+        'libre':    ['badge-free',         'VENTA LIBRE'],
+    };
+    const [cls, label] = map[tipo] || ['badge-free', 'VENTA LIBRE'];
+    
+    const colorBg = tipo === 'empresa' ? '#e67e22' : (tipo === 'receta' ? '#e74c3c' : '#2ecc71');
+    return `<span class="product-badge ${cls}" style="position: absolute; top: 10px; left: 10px; background: ${colorBg}; color: white; padding: 3px 8px; font-size: 0.75rem; border-radius: 3px; z-index: 10;">${label}</span>`;
+}
+
+//  Renderizar la tarjeta del producto 
+function renderCard(p) {
+    const img = p.imagen_url || 'https://via.placeholder.com/280x220?text=Sin+imagen';
+    const stockBajo = (p.cantidad || 0) <= 5 && (p.cantidad || 0) > 0;
+    const sinStock = (p.cantidad || 0) <= 0;
+
+    // Determinar botones según login y tipo de usuario
+    const user = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+    let botonesHTML = '';
+
+    if (!user) {
+        // NO LOGEADO: dos botones (Comprar / Comprar Empresa) que redirigen al login
+        botonesHTML = `
+            <button class="btn-carrito" onclick="irLoginCompra('personal')" ${sinStock ? 'disabled' : ''} style="flex: 1; padding: 8px; background: ${sinStock ? '#ccc' : '#3498db'}; color: white; border: none; border-radius: 4px; cursor: ${sinStock ? 'not-allowed' : 'pointer'}; font-size: 0.85rem;">
+                <i class="fa fa-shopping-cart"></i> Comprar
+            </button>
+            <button class="btn-carrito-empresa" onclick="irLoginCompra('empresa')" ${sinStock ? 'disabled' : ''} style="flex: 1; padding: 8px; background: ${sinStock ? '#ccc' : '#e67e22'}; color: white; border: none; border-radius: 4px; cursor: ${sinStock ? 'not-allowed' : 'pointer'}; font-size: 0.85rem;">
+                <i class="fa fa-building"></i> Comprar Empresa
+            </button>
+        `;
+    } else {
+        // LOGEADO: un solo botón "Comprar" — el tipo se determina por el tipo de usuario
+        const label = user.tipo === 'empresa' ? 'Comprar (Empresa)' : 'Comprar';
+        const color = user.tipo === 'empresa' ? '#e67e22' : '#3498db';
+        botonesHTML = `
+            <button class="btn-carrito" onclick="agregarRapido(${p.id})" ${sinStock ? 'disabled' : ''} style="flex: 1; padding: 8px; background: ${sinStock ? '#ccc' : color}; color: white; border: none; border-radius: 4px; cursor: ${sinStock ? 'not-allowed' : 'pointer'};">
+                <i class="fa fa-shopping-cart"></i> ${label}
+            </button>
+            <a href="/producto/${p.id}/" class="btn-detalles" style="flex: 1; padding: 8px; background: #eee; color: #333; text-align: center; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                <i class="fa fa-eye"></i> Detalles
+            </a>
+        `;
+    }
+
+    return `
+        <div class="producto-card" onclick="window.location.href='/producto/${p.id}/'" style="cursor: pointer; border: 1px solid #ddd; padding: 15px; background: white; border-radius: 8px; display: inline-block; width: 280px; vertical-align: top; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: left; position: relative;">
+            <div class="producto-image" style="position: relative; text-align: center;">
+                <img src="${img}" alt="${p.nombre}" style="width: 100%; height: 200px; object-fit: contain; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                ${getBadge(p.tipo_venta)}
+            </div>
+            <div class="producto-content" style="padding: 10px 0;">
+                <h3 class="producto-name" style="margin: 10px 0 5px 0; font-size: 1.2rem; color: #333;">${p.nombre}</h3>
+                <p class="producto-description" style="color: #666; font-size: 0.9rem; height: 50px; overflow: hidden; margin-bottom: 10px;">${p.descripcion || 'Producto MediStock'}</p>
+
+                <div class="producto-price-section" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 10px;">
+                    <div class="producto-price" style="display: flex; flex-direction: column;">
+                        <span class="product-price-unit" style="color: #888; font-size: 0.8rem;">${p.etiqueta_precio || 'Precio'}</span>
+                        <span class="product-price-value" style="font-weight: bold; color: #2ecc71; font-size: 1.1rem;">${formatPrice(p.precio)}</span>
+                    </div>
+                    <div class="product-stock ${stockBajo ? 'low' : ''} ${sinStock ? 'out' : ''}" style="font-size: 0.85rem; color: ${sinStock ? '#e74c3c' : (stockBajo ? '#f39c12' : '#27ae60')}; font-weight: bold;">
+                        ${sinStock ? 'Agotado' : `Stock: ${p.cantidad}`}
+                    </div>
+                </div>
+
+                <div class="producto-buttons" onclick="event.stopPropagation();" style="display: flex; gap: 10px; margin-top: 15px;">
+                    ${botonesHTML}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Redirigir a login guardando intención de compra
+function irLoginCompra(tipo) {
+    sessionStorage.setItem('medistock_intencion_compra', tipo);
+    alert('Para comprar debes iniciar sesión primero.');
+    window.location.href = '/login/';
+}
+
+// ── Llenar el menú desplegable de categorías dinámicamente ──
+function buildCategorySelect(productos) {
+    const selectEl = document.getElementById('categoria');
+    if (!selectEl) return;
+    
+    const cats = [...new Set(productos.map(p => p.categoria ? p.categoria.trim().toLowerCase() : ''))].filter(Boolean).sort();
+    
+    selectEl.innerHTML = '<option value="">Todas</option>';
+    cats.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+        selectEl.appendChild(option);
+    });
+}
+
+// ── Agregar rápido al carrito (Protección de tipos de usuario y stock) ──
+async function agregarRapido(productoId) {
+    if (typeof getCurrentUser !== 'function') {
+        alert('Módulo de autenticación no detectado en esta vista.');
+        return;
+    }
+
+    const user = getCurrentUser();
+    if (!user) {
+        alert('Por favor inicia sesión primero');
+        window.location.href = '/login/';
+        return;
+    }
+
+    const producto = window.allProductosListado.find(p => p.id === productoId);
+    if (!producto) {
+        alert('Producto no encontrado');
+        return;
+    }
+
+    if (producto.tipo_venta === 'empresa' && user.tipo !== 'empresa') {
+        alert('Este producto está disponible solo para cuentas de Empresa');
+        return;
+    }
+
+    if (typeof addToCart === 'function') {
+        addToCart(producto);
+    } else {
+        alert(`Añadido: ${producto.nombre} (Lógica de almacenamiento local ejecutada)`);
+    }
+}
+
+// ── Procesar Filtros combinados (Buscar + Categoría + Precio + Ordenar) ──
+function aplicarFiltros() {
+    const buscarInput = document.getElementById('buscar');
+    const categoriaInput = document.getElementById('categoria');
+    const precioInput = document.getElementById('precio');
+    const ordenarInput = document.getElementById('ordenar');
+
+    const buscarTexto = buscarInput ? buscarInput.value.toLowerCase().trim() : '';
+    const categoriaSeleccionada = categoriaInput ? categoriaInput.value.trim().toLowerCase() : '';
+    const precioMaximo = precioInput && precioInput.value ? parseFloat(precioInput.value) : Infinity;
+    const orden = ordenarInput ? ordenarInput.value : 'nombre';
+
+    let filtered = window.allProductosListado.filter(p => {
+        const pNombre = p.nombre ? p.nombre.toLowerCase() : '';
+        const pDesc = p.descripcion ? p.descripcion.toLowerCase() : '';
+        const pCat = p.categoria ? p.categoria.trim().toLowerCase() : '';
+        const pPrecio = parseFloat(p.precio) || 0;
+
+        const cumpleNombre = pNombre.includes(buscarTexto) || pDesc.includes(buscarTexto);
+        const cumpleCat = categoriaSeleccionada === "" || pCat === categoriaSeleccionada;
+        const cumplePrecio = pPrecio <= precioMaximo;
+
+        return cumpleNombre && cumpleCat && cumplePrecio;
+    });
+
+    if (orden === 'precio-asc') {
+        filtered.sort((a, b) => (parseFloat(a.precio) || 0) - (parseFloat(b.precio) || 0));
+    } else if (orden === 'precio-desc') {
+        filtered.sort((a, b) => (parseFloat(b.precio) || 0) - (parseFloat(a.precio) || 0));
+    } else {
+        filtered.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+    }
+
+    const grid = document.getElementById('productos-grid');
+    const emptyState = document.getElementById('empty-state');
+
+    if (grid) {
+        if (filtered.length > 0) {
+            grid.innerHTML = filtered.map(renderCard).join('');
+            if (emptyState) emptyState.style.display = 'none';
+        } else {
+            grid.innerHTML = '';
+            if (emptyState) emptyState.style.display = 'block';
+        }
+    }
+}
+
+// ── Cargar productos desde Supabase ──
+async function loadProducts() {
+    const loadingState = document.getElementById('loading-state');
+    const grid = document.getElementById('productos-grid');
+    
+    try {
+        console.log("=== ESPÍA: Iniciando carga de productos ===");
+        console.log("Verificando cliente Supabase:", window.sb);
+
+        if (!window.sb) {
+            alert("Error: El cliente 'window.sb' no se encuentra inicializado.");
+            return;
+        }
+
+        console.log("Enviando petición a la tabla 'productos'...");
+        
+        const { data: products, error } = await window.sb
+            .from('productos')
+            .select('*');
+
+        console.log("=== ESPÍA: Respuesta recibida de Supabase ===");
+        console.log("Datos:", products);
+        console.log("Error de Supabase:", error);
+
+        if (error) throw error;
+
+        if (loadingState) loadingState.style.display = 'none';
+
+        if (!products || products.length === 0) {
+            console.warn("La tabla devolvió 0 registros o un arreglo vacío.");
+            if (grid) grid.innerHTML = '<div class="error-state" style="width:100%; text-align:center; padding: 2rem;"><p>No hay productos disponibles en el catálogo.</p></div>';
+            return;
+        }
+
+        window.allProductosListado = products;
+        buildCategorySelect(window.allProductosListado);
+        aplicarFiltros();
+
+    } catch (err) {
+        console.error('Error crítico atrapado en el Catch:', err);
+        if (loadingState) loadingState.style.display = 'none';
+        if (grid) {
+            grid.innerHTML = `
+                <div class="error-state" style="color: #e74c3c; text-align: center; width: 100%; padding: 2rem;">
+                    <i class="fa fa-exclamation-triangle fa-2x"></i>
+                    <p>Error al procesar la solicitud del catálogo.<br>
+                       <small>${err.message || 'Error desconocido de red'}</small>
+                    </p>
+                </div>`;
+        }
+    }
+}
+
+// ── Inicializador global mediante listeners nativos ──
+document.addEventListener('DOMContentLoaded', () => {
+    const b = document.getElementById('buscar');
+    const c = document.getElementById('categoria');
+    const p = document.getElementById('precio');
+    const o = document.getElementById('ordenar');
+
+    if (b) b.addEventListener('input', aplicarFiltros);
+    if (c) c.addEventListener('change', aplicarFiltros);
+    if (p) p.addEventListener('input', aplicarFiltros);
+    if (o) o.addEventListener('change', aplicarFiltros);
+
+    loadProducts();
+});
+</script>
+{% endblock %}
+

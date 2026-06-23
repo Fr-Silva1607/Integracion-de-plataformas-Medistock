@@ -1,0 +1,22 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Conectando con Webpay...</title>
+</head>
+<body onload="document.forms['webpay_form'].submit();">
+    <div style="text-align: center; margin-top: 100px; font-family: sans-serif;">
+        <h2>Conectando de forma segura con Webpay...</h2>
+        <p>Por favor no cierres ni recargues la ventana.</p>
+        
+        <!-- Formulario oculto  -->
+        <form name="webpay_form" action="{{ url }}" method="POST">
+            <input type="hidden" name="token_ws" value="{{ token }}" />
+            <noscript>
+                <button type="submit">Haga clic aquí si no es redirigido automáticamente</button>
+            </noscript>
+        </form>
+    </div>
+</body>
+</html>

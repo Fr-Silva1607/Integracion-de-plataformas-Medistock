@@ -1,0 +1,228 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}MediStock{% endblock %}</title>
+
+
+    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Exo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/fonts/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/fonts/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/fonts.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/animate.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/menu.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/responsive.css' %}">
+
+    <link rel="stylesheet" href="{% static 'assets/css/base.css' %}">
+
+    <!-- Estilos principales e índice (colores y decoración global) -->
+    <link rel="stylesheet" href="{% static 'assets/css/index.css' %}">
+
+    {% block extra_css %}{% endblock %}
+
+
+    <style>
+        main {
+            padding-top: 110px; 
+            min-height: calc(100vh - 110px - 80px); 
+        }
+
+
+        .site-navigation .site-menu .nav-link,
+        .site-navigation .site-menu li a {
+            color: #222222 !important; 
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+
+        .site-navigation .site-menu .nav-link:hover,
+        .site-navigation .site-menu li a:hover {
+            color: #007bff !important; 
+        }
+
+
+        .btn-login, 
+        .btn-perfil,
+        #user-nombre {
+            color: #222222 !important;
+        }
+
+
+        .navbar-icon i {
+            color: #222222 !important;
+        }
+
+
+        @media (max-width: 991px) {
+            main {
+                padding-top: 90px;
+            }
+  
+            .site-menu-toggle span {
+                color: #222222 !important;
+            }
+        }
+    </style>
+</head>
+
+<body data-spy="scroll" data-offset="80" class="{% block body_class %}{% endblock %}">
+
+<!-- PRELOADER -->
+<div class="preloader">
+    <div class="status"><div class="status-mes"></div></div>
+</div>
+
+<!-- NAVBAR MÓVIL -->
+<div class="site-mobile-menu site-navbar-target">
+    <div class="site-mobile-menu-header">
+        <div class="site-mobile-menu-close mt-3">
+            <span class="icon-close2 js-menu-toggle"></span>
+        </div>
+    </div>
+    <div class="site-mobile-menu-body"></div>
+</div>
+
+<!-- NAVBAR -->
+<header class="site-navbar js-sticky-header site-navbar-target" role="banner">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+
+            <!-- Logo -->
+            <div class="col-6 col-xl-2">
+                <h1 class="mb-0 site-logo">
+                    <a href="{% url 'home' %}">
+                        <img src="{% static 'assets/img/MediStock.logo.webp' %}" alt="MediStock">
+                    </a>
+                </h1>
+            </div>
+
+            <!-- Menú desktop -->
+            <div class="col-12 col-md-8 d-none d-xl-block">
+                <nav class="site-navigation position-relative text-right" role="navigation">
+                    <ul class="site-menu main-menu js-clone-nav mr-auto d-none d-lg-block">
+                        <li><a href="{% url 'home' %}">Inicio</a></li>
+                        <li><a class="nav-link" href="{% url 'about' %}">Nosotros</a></li>
+                        <li><a class="nav-link" href="{% url 'productos' %}">Productos</a></li>
+                        <li><a class="nav-link" href="{% url 'contact' %}">Contáctanos</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- Iconos carrito + usuario/login -->
+            <div class="col-xl-2 d-none d-xl-flex justify-content-end align-items-center">
+                <div class="navbar-icons">
+                    <!-- Carrito -->
+                    <a href="{% url 'carrito' %}" title="Carrito" class="navbar-icon">
+                        <i class="fa fa-shopping-cart"></i>
+                        <span class="cart-badge" id="cart-badge">0</span>
+                    </a>
+
+                    <!-- Perfil (si está logeado) -->
+                    <div class="navbar-perfil" id="navbar-perfil" style="display: none;">
+                        <div class="dropdown">
+                            <button class="btn-perfil dropdown-toggle" type="button" id="dropdownPerfil" data-toggle="dropdown">
+                                <i class="fa fa-user"></i>
+                                <span id="user-nombre">Usuario</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownPerfil">
+                                <a class="dropdown-item" href="{% url 'perfil' %}">
+                                    <i class="fa fa-user-circle"></i> Mi Perfil
+                                </a>
+                                <a class="dropdown-item" href="{% url 'carrito' %}">
+                                    <i class="fa fa-shopping-bag"></i> Mis Compras
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" onclick="logout(); return false;">
+                                    <i class="fa fa-sign-out"></i> Cerrar Sesión
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Login (si NO está logeado) -->
+                    <div id="navbar-login">
+                        <a href="{% url 'login' %}" class="btn-login">
+                            <i class="fa fa-user"></i> Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón menú móvil -->
+            <div class="col-6 d-inline-block d-xl-none ml-md-0 py-3" style="position:relative;top:3px;">
+                <a href="#" class="site-menu-toggle js-menu-toggle float-right">
+                    <span class="icon-menu h3"></span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</header>
+
+<!-- GLOBAL HERO BANNER (se muestra en todas las páginas) -->
+<div class="global-hero" role="img" aria-label="Imagen principal Medistock"></div>
+
+<main>
+    {% block content %}
+    {% endblock %}
+</main>
+
+<!-- FOOTER -->
+<footer class="footer-area">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-12">
+                <p class="footer_copyright">
+                    &copy; 2026 Comercializadora Medistock. Todos los derechos reservados.
+                    Desarrollado por <a href="https://github.com/Fr-Silva1607/Integracion-de-plataformas-Medistock.git" target="_blank">Equipo de Desarrollo</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+<script src="{% static 'assets/js/jquery-1.12.4.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.stellar/0.6.2/jquery.stellar.min.js"></script>
+<script src="{% static 'assets/js/menu.js' %}"></script>
+<script src="{% static 'assets/js/jquery.sticky.js' %}"></script>
+<script src="{% static 'assets/js/wow.min.js' %}"></script>
+
+<!-- Plugins compartidos (usados en index) -->
+<script src="{% static 'assets/js/scrolltopcontrol.js' %}"></script>
+<script src="{% static 'assets/owlcarousel/js/owl.carousel.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery.magnific-popup.min.js' %}"></script>
+<script src="{% static 'assets/js/slick.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery.mixitup.js' %}"></script>
+<script src="{% static 'assets/js/jquery.prettyPhoto.js' %}"></script>
+
+
+<script src="{% static 'assets/js/scripts.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="{% static 'assets/js/auth.js' %}"></script>
+
+<script>
+    // Configuración de Supabase
+    const SUPABASE_URL = '{{ SUPABASE_URL }}';
+    const SUPABASE_KEY = '{{ SUPABASE_KEY }}';
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Actualizar navbar cuando carga la página
+    document.addEventListener('DOMContentLoaded', function() {
+        updateNavbar();
+        if (window.WOW) new WOW().init();
+    });
+</script>
+
+{% block extra_js %}{% endblock %}
+<script defer src="https://va.vercel-scripts.com/v1/speed-insights/script.js"></script>
+</body>
+</html>

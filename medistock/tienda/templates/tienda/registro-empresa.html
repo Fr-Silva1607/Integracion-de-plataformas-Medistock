@@ -1,0 +1,424 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MediStock — Registro Empresa</title>
+
+    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Exo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/fonts/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/fonts/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/fonts.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/animate.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/menu.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/registro-empresa.css' %}">
+</head>
+<body data-spy="scroll" data-offset="80">
+
+<!-- PRELOADER -->
+<div class="preloader">
+    <div class="status"><div class="status-mes"></div></div>
+</div>
+
+<!-- NAVBAR MÓVIL -->
+<div class="site-mobile-menu site-navbar-target">
+    <div class="site-mobile-menu-header">
+        <div class="site-mobile-menu-close mt-3">
+            <span class="icon-close2 js-menu-toggle"></span>
+        </div>
+    </div>
+    <div class="site-mobile-menu-body"></div>
+</div>
+
+<!-- NAVBAR -->
+<header class="site-navbar js-sticky-header site-navbar-target" role="banner">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-6 col-xl-2">
+                <h1 class="mb-0 site-logo">
+                    <a href="{% url 'home' %}">
+                        <img src="{% static 'assets/img/MediStock.logo.webp' %}" alt="MediStock">
+                    </a>
+                </h1>
+            </div>
+            <div class="col-12 col-md-8 d-none d-xl-block">
+                <nav class="site-navigation position-relative text-right" role="navigation">
+                    <ul class="site-menu main-menu js-clone-nav mr-auto d-none d-lg-block">
+                        <li><a href="{% url 'home' %}">Inicio</a></li>
+                        <li><a class="nav-link" href="{% url 'about' %}">Nosotros</a></li>
+                        <li><a class="nav-link" href="{% url 'productos' %}">Productos</a></li>
+                        <li><a class="nav-link" href="{% url 'contact' %}">Contáctanos</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="col-xl-2 d-none d-xl-flex justify-content-end align-items-center">
+                <div class="navbar-icons">
+                    <a href="/carrito/" title="Carrito">
+                        <i class="fa fa-shopping-cart"></i>
+                        <span class="cart-badge" id="cart-count">0</span>
+                    </a>
+                    <a href="/login/" class="btn-login">
+                        <i class="fa fa-user"></i> Login
+                    </a>
+                </div>
+            </div>
+            <div class="col-6 d-inline-block d-xl-none ml-md-0 py-3" style="position:relative;top:3px;">
+                <a href="#" class="site-menu-toggle js-menu-toggle float-right">
+                    <span class="icon-menu h3"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- REGISTRO EMPRESA SECTION -->
+<section class="login-section">
+    <div class="login-card registro-card wow fadeInUp" data-wow-duration="0.6s">
+
+        <div class="login-logo">
+            <img src="{% static 'assets/img/MediStock.logo.webp' %}" alt="MediStock">
+        </div>
+        <h2 class="login-title">Registro Empresa</h2>
+        <p class="login-subtitle">Accede a precios mayoristas y beneficios exclusivos</p>
+
+        <div class="login-alert" id="reg-alert" style="display:none;"></div>
+
+        <!-- ── DATOS DE LA EMPRESA ── -->
+        <div class="form-section-title"><i class="fa fa-building"></i> Datos de la Empresa</div>
+
+        <div class="form-row-double">
+            <div class="form-group-login">
+                <label>RUT Empresa <span class="required">*</span></label>
+                <input type="text" id="rut_empresa" class="input-login" placeholder="76543210-K" maxlength="12">
+                <span class="field-error" id="err-rut_empresa"></span>
+            </div>
+            <div class="form-group-login">
+                <label>Razón Social <span class="required">*</span></label>
+                <input type="text" id="nombre_empresa" class="input-login" placeholder="Nombre legal de la empresa">
+                <span class="field-error" id="err-nombre_empresa"></span>
+            </div>
+        </div>
+
+        <div class="form-row-double">
+            <div class="form-group-login">
+                <label>Rubro / Industria <span class="required">*</span></label>
+                <select id="rubro" class="input-login">
+                    <option value="">Selecciona...</option>
+                    <option value="Clínica privada">Clínica privada</option>
+                    <option value="Hospital público">Hospital público</option>
+                    <option value="Laboratorio">Laboratorio</option>
+                    <option value="Farmacia">Farmacia</option>
+                    <option value="Centro médico">Centro médico</option>
+                    <option value="Distribuidora">Distribuidora</option>
+                    <option value="Municipalidad">Municipalidad</option>
+                    <option value="Otro">Otro</option>
+                </select>
+                <span class="field-error" id="err-rubro"></span>
+            </div>
+            <div class="form-group-login">
+                <label>Teléfono Empresa <span class="required">*</span></label>
+                <input type="tel" id="telefono" class="input-login" placeholder="+56222345678" maxlength="12">
+                <span class="field-error" id="err-telefono"></span>
+            </div>
+        </div>
+
+        <div class="form-group-login">
+            <label>Email Corporativo <span class="required">*</span></label>
+            <input type="email" id="email" class="input-login" placeholder="contacto@empresa.cl">
+            <span class="field-error" id="err-email"></span>
+        </div>
+
+        <!-- ── UBICACIÓN ── -->
+        <div class="form-section-title"><i class="fa fa-map-marker"></i> Ubicación</div>
+
+        <div class="form-row-double">
+            <div class="form-group-login">
+                <label>Región <span class="required">*</span></label>
+                <select id="region" class="input-login">
+                    <option value="">Selecciona región...</option>
+                    <option value="Arica y Parinacota">Arica y Parinacota</option>
+                    <option value="Tarapacá">Tarapacá</option>
+                    <option value="Antofagasta">Antofagasta</option>
+                    <option value="Atacama">Atacama</option>
+                    <option value="Coquimbo">Coquimbo</option>
+                    <option value="Valparaíso">Valparaíso</option>
+                    <option value="Metropolitana">Región Metropolitana</option>
+                    <option value="O'Higgins">O'Higgins</option>
+                    <option value="Maule">Maule</option>
+                    <option value="Ñuble">Ñuble</option>
+                    <option value="Biobío">Biobío</option>
+                    <option value="La Araucanía">La Araucanía</option>
+                    <option value="Los Ríos">Los Ríos</option>
+                    <option value="Los Lagos">Los Lagos</option>
+                    <option value="Aysén">Aysén</option>
+                    <option value="Magallanes">Magallanes</option>
+                </select>
+                <span class="field-error" id="err-region"></span>
+            </div>
+            <div class="form-group-login">
+                <label>Comuna <span class="required">*</span></label>
+                <input type="text" id="comuna" class="input-login" placeholder="Comuna">
+                <span class="field-error" id="err-comuna"></span>
+            </div>
+        </div>
+
+        <div class="form-group-login">
+            <label>Dirección <span class="required">*</span></label>
+            <input type="text" id="direccion" class="input-login" placeholder="Av. Ejemplo 1234, Piso 3">
+            <span class="field-error" id="err-direccion"></span>
+        </div>
+
+        <!-- ── CONTACTO ── -->
+        <div class="form-section-title"><i class="fa fa-id-card"></i> Persona de Contacto</div>
+
+        <div class="form-row-double">
+            <div class="form-group-login">
+                <label>Nombre <span class="required">*</span></label>
+                <input type="text" id="nombre_contacto" class="input-login" placeholder="Nombre del contacto">
+                <span class="field-error" id="err-nombre_contacto"></span>
+            </div>
+            <div class="form-group-login">
+                <label>Apellido <span class="required">*</span></label>
+                <input type="text" id="apellido_contacto" class="input-login" placeholder="Apellido del contacto">
+                <span class="field-error" id="err-apellido_contacto"></span>
+            </div>
+        </div>
+
+        <div class="form-group-login">
+            <label>Cargo</label>
+            <input type="text" id="cargo_contacto" class="input-login" placeholder="Ej: Gerente de Compras">
+        </div>
+
+        <!-- ── SEGURIDAD ── -->
+        <div class="form-section-title"><i class="fa fa-lock"></i> Seguridad</div>
+
+        <div class="form-group-login">
+            <label>Contraseña <span class="required">*</span></label>
+            <div class="input-password-wrap">
+                <input type="password" id="password" class="input-login" placeholder="Mínimo 8 caracteres">
+                <span class="toggle-password" onclick="togglePassword('password', this)">
+                    <i class="fa fa-eye"></i>
+                </span>
+            </div>
+            <div class="password-strength" id="password-strength"></div>
+            <span class="field-error" id="err-password"></span>
+        </div>
+
+        <div class="form-group-login">
+            <label>Confirmar Contraseña <span class="required">*</span></label>
+            <div class="input-password-wrap">
+                <input type="password" id="password2" class="input-login" placeholder="Repite la contraseña">
+                <span class="toggle-password" onclick="togglePassword('password2', this)">
+                    <i class="fa fa-eye"></i>
+                </span>
+            </div>
+            <span class="field-error" id="err-password2"></span>
+        </div>
+
+        <!-- ── TÉRMINOS ── -->
+        <div class="form-group-login checkbox-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="terminos">
+                Acepto los <a href="#" target="_blank">Términos y Condiciones</a> para empresas y la
+                <a href="#" target="_blank">Política de Privacidad</a>
+            </label>
+            <span class="field-error" id="err-terminos"></span>
+        </div>
+
+        <!-- ── BOTONES ── -->
+        <div class="login-btn-group">
+            <button class="btn-aceptar" id="btn-registrar" onclick="handleRegistroEmpresa()">
+                <i class="fa fa-building"></i> Registrar Empresa
+            </button>
+            <button class="btn-cancelar" onclick="window.location.href='/login/'">
+                <i class="fa fa-times"></i> Cancelar
+            </button>
+        </div>
+
+        <p class="login-link">¿Ya tienes cuenta? <a href="/login/">Inicia sesión aquí</a></p>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer-area">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-12">
+                <p class="footer_copyright">
+                    &copy; 2026 Comercializadora Medistock. Todos los derechos reservados.
+                    Desarrollado por <a href="https://github.com/Fr-Silva1607/Integracion-de-plataformas-Medistock.git" target="_blank">Equipo de Desarrollo</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="{% static 'assets/js/jquery-1.12.4.min.js' %}"></script>
+<script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/js/menu.js' %}"></script>
+<script src="{% static 'assets/js/jquery.sticky.js' %}"></script>
+<script src="{% static 'assets/js/wow.min.js' %}"></script>
+<script src="{% static 'assets/js/scripts.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = '{{ SUPABASE_URL }}';
+const SUPABASE_KEY = '{{ SUPABASE_KEY }}';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function togglePassword(inputId, icon) {
+    const input = document.getElementById(inputId);
+    const isPass = input.type === 'password';
+    input.type = isPass ? 'text' : 'password';
+    icon.innerHTML = isPass ? '<i class="fa fa-eye-slash"></i>' : '<i class="fa fa-eye"></i>';
+}
+
+document.getElementById('password').addEventListener('input', function () {
+    const val = this.value;
+    const bar = document.getElementById('password-strength');
+    let s = 0;
+    if (val.length >= 8)           s++;
+    if (/[A-Z]/.test(val))        s++;
+    if (/[0-9]/.test(val))        s++;
+    if (/[^A-Za-z0-9]/.test(val)) s++;
+    const levels = ['', 'weak', 'fair', 'good', 'strong'];
+    const labels = ['', 'Débil', 'Regular', 'Buena', 'Fuerte'];
+    bar.className = 'password-strength ' + (levels[s] || '');
+    bar.textContent = val.length ? 'Contraseña: ' + (labels[s] || '') : '';
+});
+
+function validarRut(rut) {
+    rut = rut.replace(/\./g, '').replace(/-/g, '').toUpperCase();
+    if (rut.length < 8) return false;
+    const cuerpo = rut.slice(0, -1);
+    const dv = rut.slice(-1);
+    let suma = 0, m = 2;
+    for (let i = cuerpo.length - 1; i >= 0; i--) {
+        suma += parseInt(cuerpo[i]) * m;
+        m = m < 7 ? m + 1 : 2;
+    }
+    const dvE = 11 - (suma % 11);
+    return dv === (dvE === 11 ? '0' : dvE === 10 ? 'K' : String(dvE));
+}
+
+document.getElementById('rut_empresa').addEventListener('input', function () {
+    let val = this.value.replace(/[^0-9kK]/g, '').toUpperCase();
+    if (val.length > 1) val = val.slice(0, -1) + '-' + val.slice(-1);
+    this.value = val;
+});
+
+function validateForm() {
+    let valid = true;
+    const ids = ['rut_empresa','nombre_empresa','rubro','telefono','email',
+                 'region','comuna','direccion','nombre_contacto','apellido_contacto','password','password2'];
+    ids.forEach(id => { const el = document.getElementById('err-' + id); if(el) el.textContent = ''; });
+    document.getElementById('err-terminos').textContent = '';
+
+    const v = id => document.getElementById(id).value.trim();
+    const err = (id, msg) => { document.getElementById('err-' + id).textContent = msg; valid = false; };
+
+    if (!validarRut(v('rut_empresa')))                                    err('rut_empresa', 'RUT inválido. Ej: 76543210-K');
+    if (!v('nombre_empresa') || v('nombre_empresa').length < 3)           err('nombre_empresa', 'Ingresa la razón social.');
+    if (!v('rubro'))                                                       err('rubro', 'Selecciona el rubro.');
+    if (!v('telefono') || !/^\+?56\d{8,9}$/.test(v('telefono').replace(/\s/g,'')))
+                                                                           err('telefono', 'Teléfono inválido. Ej: +56222345678');
+    if (!v('email') || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('email')))   err('email', 'Correo inválido.');
+    if (!v('region'))                                                      err('region', 'Selecciona la región.');
+    if (!v('comuna') || v('comuna').length < 2)                           err('comuna', 'Ingresa la comuna.');
+    if (!v('direccion') || v('direccion').length < 5)                     err('direccion', 'Ingresa la dirección.');
+    if (!v('nombre_contacto') || v('nombre_contacto').length < 2)        err('nombre_contacto', 'Ingresa el nombre del contacto.');
+    if (!v('apellido_contacto') || v('apellido_contacto').length < 2)    err('apellido_contacto', 'Ingresa el apellido del contacto.');
+
+    const pass  = document.getElementById('password').value;
+    const pass2 = document.getElementById('password2').value;
+    if (!pass || pass.length < 8)         err('password', 'Mínimo 8 caracteres.');
+    else if (!/[A-Z]/.test(pass))         err('password', 'Incluye al menos una mayúscula.');
+    else if (!/[0-9]/.test(pass))         err('password', 'Incluye al menos un número.');
+    if (pass !== pass2)                   err('password2', 'Las contraseñas no coinciden.');
+    if (!document.getElementById('terminos').checked) {
+        document.getElementById('err-terminos').textContent = 'Debes aceptar los términos.';
+        valid = false;
+    }
+    return valid;
+}
+
+async function hashPassword(password) {
+    const data = new TextEncoder().encode(password);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function showAlert(msg, type = 'error') {
+    const el = document.getElementById('reg-alert');
+    el.className = 'login-alert ' + type;
+    el.textContent = msg;
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function handleRegistroEmpresa() {
+    if (!validateForm()) return;
+
+    const btn = document.getElementById('btn-registrar');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Registrando...';
+    document.getElementById('reg-alert').style.display = 'none';
+
+    try {
+        const email = document.getElementById('email').value.trim().toLowerCase();
+
+        const { data: existe } = await sb.from('empresas').select('id').eq('email', email).single();
+        if (existe) { showAlert('Este correo corporativo ya está registrado.'); return; }
+
+        const passwordHash = await hashPassword(document.getElementById('password').value);
+
+        const { error } = await sb.from('empresas').insert([{
+            rut_empresa:       document.getElementById('rut_empresa').value.trim(),
+            nombre_empresa:    document.getElementById('nombre_empresa').value.trim(),
+            rubro:             document.getElementById('rubro').value,
+            telefono:          document.getElementById('telefono').value.trim(),
+            email:             email,
+            region:            document.getElementById('region').value,
+            comuna:            document.getElementById('comuna').value.trim(),
+            direccion:         document.getElementById('direccion').value.trim(),
+            nombre_contacto:   document.getElementById('nombre_contacto').value.trim(),
+            apellido_contacto: document.getElementById('apellido_contacto').value.trim(),
+            cargo_contacto:    document.getElementById('cargo_contacto').value.trim(),
+            password_hash:     passwordHash,
+        }]);
+
+        if (error) throw error;
+
+        showAlert('¡Empresa registrada con éxito! Redirigiendo al login...', 'success');
+        setTimeout(() => window.location.href = '/login/', 2000);
+
+    } catch (err) {
+        console.error(err);
+        if (err.code === '23505') showAlert('El RUT o correo ya está registrado.');
+        else showAlert('Error al registrar. Intenta nuevamente.');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-building"></i> Registrar Empresa';
+    }
+}
+
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('medistock_cart') || '[]');
+    document.getElementById('cart-count').textContent = cart.length;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateCartCount();
+    if (window.WOW) new WOW().init();
+});
+</script>
+</body>
+</html>

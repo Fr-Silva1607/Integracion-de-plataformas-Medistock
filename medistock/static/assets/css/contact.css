@@ -1,0 +1,233 @@
+
+.contact-section {
+    min-height: 80vh;
+    padding: 40px 0 60px 0;
+    background-color: #f8f9fa;
+}
+
+.contact-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.contact-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.contact-header h1 i {
+    color: var(--primary);
+    margin-right: 10px;
+}
+
+.contact-header p {
+    color: #777;
+    font-size: 15px;
+}
+
+.contact-info-card {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 35px 30px;
+    height: 100%;
+    box-shadow: 0 6px 20px rgba(0,119,182,0.18);
+}
+
+.contact-info-card h3 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.info-subtitle {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+.info-item {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 22px;
+    align-items: flex-start;
+}
+
+.info-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.info-text strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 4px;
+    color: white;
+}
+
+.info-text p {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.6;
+}
+
+.info-redes {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.info-redes a {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+.info-redes a:hover {
+    background: white;
+    color: var(--primary);
+    transform: translateY(-3px);
+}
+
+.contact-form-card {
+    background: white;
+    border-radius: 12px;
+    padding: 35px 30px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    height: 100%;
+}
+
+.contact-form-card h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-subtitle {
+    color: #999;
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+.contact-form-card .form-group {
+    margin-bottom: 18px;
+}
+
+.contact-form-card label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.contact-form-card .form-control {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.contact-form-card .form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0,119,182,0.08);
+}
+
+.contact-form-card textarea.form-control {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.btn-enviar {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-enviar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,119,182,0.25);
+}
+
+.btn-enviar i {
+    margin-right: 8px;
+}
+
+.alert {
+    margin-top: 20px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border-left: 4px solid #28a745;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+}
+
+.alert i {
+    margin-right: 6px;
+}
+
+
+@media (max-width: 992px) {
+    .contact-info-card {
+        margin-bottom: 25px;
+    }
+}
+
+@media (max-width: 768px) {
+    .contact-header h1 {
+        font-size: 24px;
+    }
+
+    .contact-info-card,
+    .contact-form-card {
+        padding: 25px 18px;
+    }
+
+    .info-redes a {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+}

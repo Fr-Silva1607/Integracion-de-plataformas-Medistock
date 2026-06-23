@@ -1,0 +1,150 @@
+{% extends "tienda/base.html" %}
+{% load static %}
+
+{% block title %}Contáctanos - MediStock{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/css/contact.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="contact-section">
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="contact-header">
+            <h1><i class="fa fa-envelope"></i> Contáctanos</h1>
+            <p>¿Tienes preguntas? Estamos aquí para ayudarte</p>
+        </div>
+
+        <div class="row">
+
+            <!-- INFO CONTACTO -->
+            <div class="col-lg-5">
+                <div class="contact-info-card">
+                    <h3>Información de Contacto</h3>
+                    <p class="info-subtitle">Estaremos encantados de atenderte</p>
+
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fa fa-map-marker"></i></div>
+                        <div class="info-text">
+                            <strong>Dirección</strong>
+                            <p>P.º Estado 115, Oficina 507<br>Santiago, Chile</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fa fa-phone"></i></div>
+                        <div class="info-text">
+                            <strong>Teléfono</strong>
+                            <p>(+569) 1234 5678</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fa fa-envelope"></i></div>
+                        <div class="info-text">
+                            <strong>Email</strong>
+                            <p>medistock1111@gmail.com</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fa fa-clock-o"></i></div>
+                        <div class="info-text">
+                            <strong>Horario</strong>
+                            <p>Lun - Vie: 9:00 - 18:00<br>Sáb: 9:00 - 14:00</p>
+                        </div>
+                    </div>
+
+                    <div class="info-redes">
+                        <a href="#"><i class="fa fa-facebook"></i></a>
+                        <a href="#"><i class="fa fa-instagram"></i></a>
+                        <a href="#"><i class="fa fa-twitter"></i></a>
+                        <a href="#"><i class="fa fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORMULARIO -->
+            <div class="col-lg-7">
+                <div class="contact-form-card">
+                    <h3>Envíanos un mensaje</h3>
+                    <p class="form-subtitle">Te responderemos en menos de 24 horas</p>
+
+                    <form id="contact-form" onsubmit="enviarMensaje(event)">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Nombre *</label>
+                                    <input type="text" id="contact-nombre" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Email *</label>
+                                    <input type="email" id="contact-email" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Teléfono</label>
+                                    <input type="tel" id="contact-telefono" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Asunto *</label>
+                                    <input type="text" id="contact-asunto" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Mensaje *</label>
+                                    <textarea id="contact-mensaje" class="form-control" rows="5" required></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit" class="btn-enviar">
+                                    <i class="fa fa-paper-plane"></i> Enviar Mensaje
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div id="contact-alert" class="alert" style="display: none;"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function enviarMensaje(event) {
+    event.preventDefault();
+    const alertEl = document.getElementById('contact-alert');
+
+    // Validación simple
+    const nombre = document.getElementById('contact-nombre').value.trim();
+    const email = document.getElementById('contact-email').value.trim();
+    const mensaje = document.getElementById('contact-mensaje').value.trim();
+
+    if (!nombre || !email || !mensaje) {
+        alertEl.className = 'alert alert-danger';
+        alertEl.textContent = 'Completa los campos obligatorios.';
+        alertEl.style.display = 'block';
+        return;
+    }
+
+    alertEl.className = 'alert alert-success';
+    alertEl.innerHTML = '<i class="fa fa-check"></i> Mensaje enviado. Te responderemos pronto.';
+    alertEl.style.display = 'block';
+    document.getElementById('contact-form').reset();
+}
+</script>
+{% endblock %}

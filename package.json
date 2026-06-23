@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@vercel/speed-insights": "^2.0.0",
+    "firebase": "^12.13.0"
+  }
+}
