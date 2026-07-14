@@ -3,6 +3,9 @@ import random
 import math
 import time
 import datetime
+import urllib.error
+import urllib.parse
+import urllib.request
 from django.shortcuts import render
 from django.conf import settings
 from django.http import JsonResponse
@@ -24,6 +27,154 @@ try:
     TRANSBANK_AVAILABLE = True
 except ImportError:
     tx = None
+
+
+def _supabase_server_request(endpoint, method='GET', params=None, body=None):
+    """Server-side helper for Supabase REST operations."""
+    base = settings.SUPABASE_URL.rstrip('/')
+    url = f"{base}/rest/v1/{endpoint}"
+
+    if params:
+        url += '?' + urllib.parse.urlencode(params)
+
+    server_key = getattr(settings, 'SUPABASE_SERVER_KEY', '') or settings.SUPABASE_KEY
+    headers = {
+        'apikey': server_key,
+        'Authorization': f'Bearer {server_key}',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Prefer': 'return=representation',
+    }
+
+    data = None
+    if body is not None:
+        data = json.dumps(body).encode('utf-8')
+
+    request = urllib.request.Request(url, data=data, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(request, timeout=15) as response:
+            content = response.read().decode('utf-8')
+            return json.loads(content) if content else []
+    except urllib.error.HTTPError as error:
+        detail = error.read().decode('utf-8') if error.fp else error.reason
+        return {'error': f'HTTP {error.code}: {detail}'}
+    except Exception as error:
+        return {'error': str(error)}
+
+
+def _extract_order_id_from_buy_order(buy_order):
+    """Extract original order id from Webpay buy_order format MDS-<id>-<suffix>."""
+    if not buy_order or not buy_order.startswith('MDS-'):
+        return None
+
+    parts = buy_order.split('-')
+    if len(parts) < 3:
+        return None
+
+    try:
+        return int(parts[1])
+    except (TypeError, ValueError):
+        return None
+
+
+def _load_order_for_payment(orden_id):
+    data = _supabase_server_request(
+        'ordenes',
+        params={
+            'select': 'id,estado,items',
+            'id': f'eq.{orden_id}',
+            'limit': 1,
+        },
+    )
+    if isinstance(data, dict) and 'error' in data:
+        raise RuntimeError(data['error'])
+    if not data:
+        raise RuntimeError(f'Orden {orden_id} no encontrada en Supabase')
+    return data[0]
+
+
+def _build_stock_updates(items):
+    updates = []
+
+    for item in items:
+        producto_id = item.get('id')
+        cantidad_vendida = int(item.get('cantidad', 0) or 0)
+        if not producto_id or cantidad_vendida <= 0:
+            raise RuntimeError('La orden contiene un item inválido para descontar stock')
+
+        producto = _supabase_server_request(
+            'productos',
+            params={
+                'select': 'id,nombre,cantidad',
+                'id': f'eq.{producto_id}',
+                'limit': 1,
+            },
+        )
+
+        if isinstance(producto, dict) and 'error' in producto:
+            raise RuntimeError(producto['error'])
+        if not producto:
+            raise RuntimeError(f'Producto {producto_id} no encontrado')
+
+        producto_actual = producto[0]
+        stock_actual = int(producto_actual.get('cantidad') or 0)
+        if stock_actual < cantidad_vendida:
+            raise RuntimeError(
+                f'Stock insuficiente para {producto_actual.get("nombre") or producto_id}. '
+                f'Disponible: {stock_actual}, solicitado: {cantidad_vendida}'
+            )
+
+        updates.append({
+            'id': producto_id,
+            'nombre': producto_actual.get('nombre'),
+            'stock_actual': stock_actual,
+            'cantidad_vendida': cantidad_vendida,
+            'nuevo_stock': stock_actual - cantidad_vendida,
+        })
+
+    return updates
+
+
+def _mark_order_paid_and_discount_stock(orden_id):
+    orden = _load_order_for_payment(orden_id)
+    estado_actual = (orden.get('estado') or '').lower()
+    if estado_actual == 'pagada':
+        return {
+            'orden_id': orden_id,
+            'already_processed': True,
+            'productos_actualizados': [],
+        }
+
+    items = orden.get('items') or []
+    if not items:
+        raise RuntimeError(f'La orden {orden_id} no tiene items para descontar stock')
+
+    updates = _build_stock_updates(items)
+
+    for update in updates:
+        result = _supabase_server_request(
+            'productos',
+            method='PATCH',
+            params={'id': f'eq.{update["id"]}'},
+            body={'cantidad': update['nuevo_stock']},
+        )
+        if isinstance(result, dict) and 'error' in result:
+            raise RuntimeError(result['error'])
+
+    orden_result = _supabase_server_request(
+        'ordenes',
+        method='PATCH',
+        params={'id': f'eq.{orden_id}'},
+        body={'estado': 'pagada'},
+    )
+    if isinstance(orden_result, dict) and 'error' in orden_result:
+        raise RuntimeError(orden_result['error'])
+
+    return {
+        'orden_id': orden_id,
+        'already_processed': False,
+        'productos_actualizados': updates,
+    }
 
 # vistas princpales
 def home(request):
@@ -212,7 +363,24 @@ def webpay_retorno(request):
 
         # Transacción aprobada con éxito por el banco (response_code = 0)
         if result.get('response_code') == 0:
-            return render(request, 'tienda/pago_exitoso.html', {'result': result})
+            stock_result = None
+            stock_error = None
+            orden_id = _extract_order_id_from_buy_order(result.get('buy_order'))
+
+            if orden_id is not None:
+                try:
+                    stock_result = _mark_order_paid_and_discount_stock(orden_id)
+                except Exception as stock_exception:
+                    stock_error = str(stock_exception)
+                    print(f'Error descontando stock para orden {orden_id}: {stock_error}')
+            else:
+                stock_error = 'No se pudo determinar la orden asociada al pago confirmado.'
+
+            return render(request, 'tienda/pago_exitoso.html', {
+                'result': result,
+                'stock_result': stock_result,
+                'stock_error': stock_error,
+            })
         else:
             return render(request, 'tienda/pago_rechazado.html', {
                 'mensaje': 'El pago fue rechazado por el banco.',
@@ -304,8 +472,8 @@ def api_productos(request):
 
     url = f"{settings.SUPABASE_URL.rstrip('/')}/rest/v1/productos?" + urllib.parse.urlencode(params)
     headers = {
-        'apikey': settings.SUPABASE_KEY,
-        'Authorization': f'Bearer {settings.SUPABASE_KEY}',
+        'apikey': settings.SUPABASE_SERVER_KEY,
+        'Authorization': f'Bearer {settings.SUPABASE_SERVER_KEY}',
         'Accept': 'application/json',
     }
 
@@ -322,20 +490,20 @@ def dashboard(request):
     return render(request, 'tienda/dashboard.html')
 
 SUPABASE_URL = getattr(settings, 'SUPABASE_URL', None)
-SUPABASE_KEY = getattr(settings, 'SUPABASE_KEY', None)
+SUPABASE_SERVER_KEY = getattr(settings, 'SUPABASE_SERVER_KEY', None)
 SUPABASE_CLIENT = None
 
-if SUPABASE_URL and SUPABASE_KEY:
+if SUPABASE_URL and SUPABASE_SERVER_KEY:
     try:
         from supabase import create_client
-        SUPABASE_CLIENT = create_client(SUPABASE_URL, SUPABASE_KEY)
+        SUPABASE_CLIENT = create_client(SUPABASE_URL, SUPABASE_SERVER_KEY)
     except ImportError:
         SUPABASE_CLIENT = None
 
 
 def api_dashboard(request):
     if SUPABASE_CLIENT is None:
-        return JsonResponse({'error': 'Supabase no está disponible. Instale la dependencia supabase y configure SUPABASE_URL/SUPABASE_KEY.'}, status=500)
+        return JsonResponse({'error': 'Supabase no está disponible. Configure SUPABASE_URL y SUPABASE_SERVER_KEY/SUPABASE_SECRET_KEY.'}, status=500)
 
     try:
         res = SUPABASE_CLIENT.table('productos').select('*').execute()

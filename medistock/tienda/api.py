@@ -21,8 +21,8 @@ def _supabase_request(endpoint, method='GET', params=None, body=None):
         url += '?' + urllib.parse.urlencode(params)
 
     headers = {
-        'apikey': settings.SUPABASE_KEY,
-        'Authorization': f'Bearer {settings.SUPABASE_KEY}',
+        'apikey': settings.SUPABASE_SERVER_KEY,
+        'Authorization': f'Bearer {settings.SUPABASE_SERVER_KEY}',
         'Content-Type': 'application/json',
         'Accept': 'application/json',
     }
