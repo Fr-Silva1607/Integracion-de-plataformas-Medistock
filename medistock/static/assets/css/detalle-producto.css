@@ -11,7 +11,7 @@
 }
 
 .breadcrumb-item.active {
-    color: #667eea;
+    color: #0077b6;
     font-weight: 600;
 }
 
@@ -53,7 +53,7 @@
     position: absolute;
     top: 15px;
     right: 15px;
-    background-color: #e74c3c;
+    background-color: #e63946;
     color: white;
     padding: 8px 16px;
     border-radius: 6px;
@@ -78,7 +78,7 @@
 }
 
 .galeria-thumbnails img:hover {
-    border-color: #667eea;
+    border-color: #0077b6;
 }
 
 .info-section {
@@ -90,7 +90,7 @@
 .categoria {
     display: inline-block;
     background-color: #f0f0f0;
-    color: #667eea;
+    color: #0077b6;
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 12px;
@@ -137,7 +137,7 @@
 }
 
 .stock-agotado {
-    color: #e74c3c;
+    color: #e63946;
 }
 
 
@@ -151,7 +151,7 @@
 .precio {
     font-size: 36px;
     font-weight: 700;
-    color: #667eea;
+    color: #0077b6;
 }
 
 .precio-anterior {
@@ -166,7 +166,7 @@
     padding: 20px;
     background-color: #f9f9f9;
     border-radius: 8px;
-    border-left: 4px solid #667eea;
+    border-left: 4px solid #0077b6;
 }
 
 .descripcion-section p {
@@ -270,23 +270,23 @@
 }
 
 .btn-personal {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #0077b6;
     color: white;
 }
 
 .btn-personal:hover:not(:disabled) {
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 20px rgba(0,119,182,0.25);
 }
 
 .btn-empresa {
     background-color: #f0f0f0;
     color: #333;
-    border: 2px solid #667eea;
+    border: 2px solid #0077b6;
 }
 
 .btn-empresa:hover:not(:disabled) {
-    background-color: #667eea;
+    background-color: #0077b6;
     color: white;
 }
 
@@ -334,13 +334,13 @@
     justify-content: center;
     background-color: #f0f0f0;
     border-radius: 50%;
-    color: #667eea;
+    color: #0077b6;
     text-decoration: none;
     transition: all 0.3s;
 }
 
 .btn-compartir:hover {
-    background-color: #667eea;
+    background-color: #0077b6;
     color: white;
 }
 
@@ -471,7 +471,7 @@
     position: absolute;
     top: 8px;
     right: 8px;
-    background-color: #e74c3c;
+    background-color: #e63946;
     color: white;
     padding: 4px 8px;
     border-radius: 4px;
@@ -495,7 +495,7 @@
     padding: 0 12px;
     font-size: 16px;
     font-weight: 700;
-    color: #667eea;
+    color: #0077b6;
 }
 
 .producto-card-relacionado .btn {

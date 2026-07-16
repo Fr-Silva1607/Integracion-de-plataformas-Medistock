@@ -305,7 +305,11 @@ async function iniciarPagoTransbank() {
     try {
         // 2. Rescatar el ID de la orden desde la URL o el contexto de Django
         const urlParams = new URLSearchParams(window.location.search);
-        const ordenId = urlParams.get('orden') || ordenIdContexto || "18";
+        const ordenId = urlParams.get('orden') || ordenIdContexto;
+
+        if (!ordenId) {
+            throw new Error('No se encontró una orden válida para procesar el pago');
+        }
 
         // 3. Tomar el total calculado dinámicamente
         let montoLimpio = window.totalAPagar || 7140;

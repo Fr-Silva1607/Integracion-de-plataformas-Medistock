@@ -28,7 +28,7 @@
 }
 
 .carrito-table thead {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0077b6 0%, #005f8f 100%);
     color: white;
 }
 
@@ -76,7 +76,7 @@
 }
 
 .col-subtotal {
-    color: #667eea;
+    color: #0077b6;
     font-size: 16px;
 }
 
@@ -102,7 +102,7 @@
 }
 
 .btn-qty:hover {
-    background: #667eea;
+    background: #0077b6;
     color: white;
 }
 
@@ -123,8 +123,8 @@
 /* ── ACCIONES ── */
 .btn-eliminar {
     background: transparent;
-    border: 1px solid #e74c3c;
-    color: #e74c3c;
+    border: 1px solid #e63946;
+    color: #e63946;
     width: 36px;
     height: 36px;
     border-radius: 6px;
@@ -133,7 +133,7 @@
 }
 
 .btn-eliminar:hover {
-    background: #e74c3c;
+    background: #e63946;
     color: white;
     transform: scale(1.05);
 }
@@ -198,7 +198,7 @@
     justify-content: space-between;
     font-size: 20px;
     font-weight: 700;
-    color: #667eea;
+    color: #0077b6;
     padding: 15px 0;
     border-top: 2px solid #f0f0f0;
     margin-bottom: 20px;
@@ -206,12 +206,12 @@
 
 
 .tipo-usuario {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(0,119,182,0.08) 0%, rgba(0,95,143,0.08) 100%);
     padding: 12px 15px;
     border-radius: 6px;
     margin-bottom: 20px;
     text-align: center;
-    border: 1px solid #667eea;
+    border: 1px solid #0077b6;
 }
 
 .tipo-usuario p {
@@ -239,24 +239,24 @@
 }
 
 .btn-primary.btn-block {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #0077b6;
     color: white;
 }
 
 .btn-primary.btn-block:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 20px rgba(0,119,182,0.25);
     color: white;
 }
 
 .btn-secondary.btn-block {
     background: white;
-    color: #667eea;
-    border: 2px solid #667eea;
+    color: #0077b6;
+    border: 2px solid #0077b6;
 }
 
 .btn-secondary.btn-block:hover {
-    background: #667eea;
+    background: #0077b6;
     color: white;
 }
 
@@ -294,7 +294,7 @@
 }
 
 .texto-pequeno a {
-    color: #667eea;
+    color: #0077b6;
     text-decoration: none;
 }
 
@@ -340,7 +340,7 @@
         position: absolute;
         left: 10px;
         font-weight: 600;
-        color: #667eea;
+        color: #0077b6;
     }
 
     .col-imagen {

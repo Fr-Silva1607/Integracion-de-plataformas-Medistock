@@ -1,14 +1,14 @@
 /* ── BASE STYLES ── */
 
 :root {
-    --primary: #667eea;
-    --primary-dark: #764ba2;
+    --primary: #0077b6;
+    --primary-dark: #005f8f;
     --secondary: #f0f0f0;
     --text-dark: #333;
     --text-light: #777;
     --border-color: #ddd;
     --success: #27ae60;
-    --danger: #e74c3c;
+    --danger: #e63946;
     --warning: #f39c12;
 }
 
@@ -159,7 +159,7 @@ body:not(.page-login) .site-navbar {
 
 .btn-login:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 12px rgba(0,119,182,0.25);
     text-decoration: none;
     color: white;
 }
@@ -273,4 +273,28 @@ main {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--primary-dark);
+}
+
+/* Global hero banner shown on every page (uses main carousel image) */
+.global-hero {
+    height: 160px;
+    background-image: url("../img/carrusel1.png");
+    background-size: cover;
+    background-position: center center;
+    position: relative;
+    filter: saturate(0.88) contrast(0.95) brightness(0.98);
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+.global-hero::after {
+    /* soft overlay to reduce harshness and "AI" look */
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.12));
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .global-hero { height: 110px; background-position: center 40%; }
 }

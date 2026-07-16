@@ -20,6 +20,9 @@
 
     <link rel="stylesheet" href="{% static 'assets/css/base.css' %}">
 
+    <!-- Estilos principales e índice (colores y decoración global) -->
+    <link rel="stylesheet" href="{% static 'assets/css/index.css' %}">
+
     {% block extra_css %}{% endblock %}
 
 
@@ -162,6 +165,9 @@
     </div>
 </header>
 
+<!-- GLOBAL HERO BANNER (se muestra en todas las páginas) -->
+<div class="global-hero" role="img" aria-label="Imagen principal Medistock"></div>
+
 <main>
     {% block content %}
     {% endblock %}
@@ -189,6 +195,14 @@
 <script src="{% static 'assets/js/menu.js' %}"></script>
 <script src="{% static 'assets/js/jquery.sticky.js' %}"></script>
 <script src="{% static 'assets/js/wow.min.js' %}"></script>
+
+<!-- Plugins compartidos (usados en index) -->
+<script src="{% static 'assets/js/scrolltopcontrol.js' %}"></script>
+<script src="{% static 'assets/owlcarousel/js/owl.carousel.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery.magnific-popup.min.js' %}"></script>
+<script src="{% static 'assets/js/slick.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery.mixitup.js' %}"></script>
+<script src="{% static 'assets/js/jquery.prettyPhoto.js' %}"></script>
 
 
 <script src="{% static 'assets/js/scripts.js' %}"></script>
