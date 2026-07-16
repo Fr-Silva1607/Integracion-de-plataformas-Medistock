@@ -1,7 +1,7 @@
 """
 API REST de MediStock
 Endpoints públicos para consumir productos desde clientes externos
-(apps móviles, ESP32, dashboards, etc).
+(apps móviles, ESP32, dashboards, etc). 
 """
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -10,6 +10,7 @@ from django.conf import settings
 import json
 import urllib.request
 import urllib.parse
+from . import chilexpress
 
 
 def _supabase_request(endpoint, method='GET', params=None, body=None):
@@ -112,6 +113,115 @@ def api_categorias(request):
     categorias = sorted({p['categoria'] for p in data if p.get('categoria')})
     return JsonResponse({'categorias': categorias})
 
+@require_http_methods(['GET'])
+def api_stock(request):
+    """
+    GET /api/productos/stock/
+
+    Parámetros opcionales:
+      ?estado=bajo
+      ?minimo=5
+
+    Devuelve únicamente información del stock de los productos.
+    """
+
+    data = _supabase_request(
+        'productos',
+        params={'select': 'id,nombre,cantidad'}
+    )
+
+    if isinstance(data, dict) and 'error' in data:
+        return JsonResponse(data, status=500)
+
+    minimo = int(request.GET.get('minimo', 5))
+    estado = request.GET.get('estado')
+
+    productos = []
+
+    for p in data:
+
+        cantidad = p.get('cantidad', 0)
+
+        if cantidad <= 0:
+            estado_stock = "Sin Stock"
+        elif cantidad <= minimo:
+            estado_stock = "Stock Bajo"
+        else:
+            estado_stock = "Disponible"
+
+        if estado == "bajo" and estado_stock != "Stock Bajo":
+            continue
+
+        productos.append({
+            "id": p["id"],
+            "nombre": p["nombre"],
+            "stock": cantidad,
+            "estado": estado_stock
+        })
+
+    return JsonResponse({
+        "count": len(productos),
+        "productos": productos
+    })      
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def api_cotizar_envio(request):
+    """
+    POST /api/chilexpress/cotizar/
+
+    Cotiza un envío utilizando la API de Chilexpress.
+    """
+
+    try:
+        body = json.loads(request.body)
+
+    except json.JSONDecodeError:
+        return JsonResponse(
+            {"error": "JSON inválido"},
+            status=400
+        )
+
+    resultado = chilexpress.cotizar_envio(
+
+        origen=body.get("origen"),
+        destino=body.get("destino"),
+        peso=body.get("peso"),
+        alto=body.get("alto"),
+        ancho=body.get("ancho"),
+        largo=body.get("largo"),
+        valor=body.get("valor")
+
+    )
+
+    return JsonResponse(resultado)
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def api_validar_direccion(request):
+    """
+    POST /api/chilexpress/validar-direccion/
+
+    Busca una calle utilizando la API de Chilexpress.
+    """
+
+    try:
+        body = json.loads(request.body)
+
+    except json.JSONDecodeError:
+        return JsonResponse(
+            {"error": "JSON inválido"},
+            status=400
+        )
+
+    resultado = chilexpress.buscar_calles(
+
+        comuna=body.get("comuna"),
+        calle=body.get("calle")
+
+    )
+
+    return JsonResponse(resultado)  
 
 @csrf_exempt
 @require_http_methods(['POST'])

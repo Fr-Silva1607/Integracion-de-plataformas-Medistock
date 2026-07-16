@@ -89,3 +89,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SUPABASE_URL = 'https://ljzypuiqebttfmmgzsqk.supabase.co'
 SUPABASE_KEY = 'sb_publishable_LM3_tYyHvBjdPQxqJwB-zA_u03mDQwR'
+
+# Chilexpress API
+CHILEXPRESS_BASE_URL = "http://testservices.wschilexpress.com"
+
+# Aun no las tengo
+CHILEXPRESS_API_KEY = ""
+CHILEXPRESS_API_SECRET = ""
