@@ -52,12 +52,34 @@
                                 <input type="text" id="pago-direccion" class="form-control" placeholder="Ej: Av. Providencia 1234, Dpto 502">
                             </div>
                         </div>
+
+                        
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Ciudad *</label>
-                                <input type="text" id="pago-ciudad" class="form-control" placeholder="Ej: Santiago">
+                                <label>comuna *</label>
+                                <select
+                                    id="pago-ciudad"
+                                    class="form-control"
+                                    onchange="cotizarEnvio()">
+
+                                    <option value="">Seleccione una comuna</option>
+                                    <option value="STGO">Santiago Centro</option>
+                                    <option value="PROV">Providencia</option>
+                                    <option value="LCON">Las Condes</option>
+                                    <option value="NUNO">Ñuñoa</option>
+                                    <option value="MAIP">Maipú</option>
+                                    <option value="PUAL">Puente Alto</option>
+                                    <option value="FLOR">La Florida</option>
+                                    <option value="VINA">Viña del Mar</option>
+                                    <option value="VALP">Valparaíso</option>
+                                    <option value="CONC">Concepción</option>
+                                    <option value="TEMU">Temuco</option>
+                                    <option value="ANTO">Antofagasta</option>
+                                </select>
                             </div>
                         </div>
+
+
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Región *</label>
@@ -77,6 +99,16 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="text-end mt-3">
+                        <button
+                        type="button"
+                        class="btn btn-outline-primary"
+                        onclick="cotizarEnvio()">
+                        <i class="fa fa-truck"></i>
+                        Cotizar envío con Chilexpress
+                        </button>
+                    </div>  
                 </div>
 
                 <!-- DATOS FACTURACIÓN (solo empresa) -->
@@ -166,6 +198,11 @@
                     <div class="resumen-item">
                         <span>Envío:</span>
                         <span id="resumen-envio">Por calcular</span>
+                        <small id="servicio-envio" class="text-muted"></small>
+                    </div>
+
+                    <div class="resumen-item">
+                        <small id="servicio-envio" style="color:#666;"></small>
                     </div>
 
                     <div class="resumen-divider"></div>
@@ -201,6 +238,7 @@
 // Mantenemos la constante de Django intacta arriba
 const ordenIdContexto = '{{ orden_id }}';
 let ordenActual = null;
+let subtotalConIVA = 0;
 
 // Cargar datos al iniciar
 document.addEventListener('DOMContentLoaded', function() {
@@ -264,7 +302,8 @@ function mostrarResumen(cart) {
     document.getElementById('resumen-total').textContent = `$${total.toLocaleString('es-CL')}`;
 
     // Guardar el valor entero exacto en el objeto global
-    window.totalAPagar = parseInt(total, 10);
+    subtotalConIVA = parseInt(total, 10);
+    window.totalAPagar = subtotalConIVA;
 }
 
 // Validar formulario
@@ -357,7 +396,101 @@ async function iniciarPagoTransbank() {
         btnPagar.innerHTML = '<i class="fa fa-lock"></i> Pagar con Transbank';
     }
 }
-//cotiza envio
-fetch("/api/chilexpress/cotizar/")
+async function cotizarEnvio() {
+
+    const codigoDestino = document.getElementById("pago-ciudad").value;
+
+    if (!codigoDestino) {
+        alert("Seleccione una comuna.");
+        return;
+    }
+
+    try {
+
+        const response = await fetch("/api/chilexpress/cotizar/", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+
+            body: JSON.stringify({
+
+                origen: "STGO",
+                destino: codigoDestino,
+
+                peso: 2,
+                alto: 20,
+                ancho: 20,
+                largo: 20,
+
+                valor: window.totalAPagar
+
+            })
+
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            alert("No fue posible cotizar el envío.");
+            return;
+        }
+
+        if (!data.data || !data.data.courierServiceOptions || data.data.courierServiceOptions.length === 0) {
+            alert("Chilexpress no devolvió opciones de envío.");
+            return;
+        }
+
+        // Primera opción de envío
+        const opcion = data.data.courierServiceOptions.reduce((menor, actual) => {
+
+            return Number(actual.serviceValue) < Number(menor.serviceValue)
+                ? actual
+                : menor;
+
+        });
+
+        // Mostrar nombre del servicio seleccionado
+        document.getElementById("servicio-envio").textContent =
+            opcion.serviceDescription;
+
+        // Obtener costo del envío
+        const costoEnvio = Number(opcion.serviceValue);
+
+        // Mostrar costo del envío
+        document.getElementById("resumen-envio").textContent =
+            "$" + costoEnvio.toLocaleString("es-CL");
+        
+        document.getElementById("servicio-envio").textContent =
+            "Servicio: Chilexpress " + servicio;
+
+        // Actualizar total
+        const nuevoTotal = subtotalConIVA + costoEnvio;
+
+        document.getElementById("resumen-total").textContent =
+            "$" + nuevoTotal.toLocaleString("es-CL");
+
+        // Guardar el nuevo total
+        window.totalAPagar = nuevoTotal;
+
+    } catch (error) {
+
+        console.error(error);
+        alert("Error al conectar con Chilexpress.");
+
+    }
+
+}
+
+document.getElementById("pago-ciudad").addEventListener("change", function () {
+
+    if (this.value) {
+        cotizarEnvio();
+    }
+
+});
 </script>
 {% endblock %}

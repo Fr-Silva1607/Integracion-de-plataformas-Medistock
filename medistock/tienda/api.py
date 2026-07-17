@@ -10,7 +10,9 @@ from django.conf import settings
 import json
 import urllib.request
 import urllib.parse
+import urllib.error
 from . import chilexpress
+import requests
 
 
 def _supabase_request(endpoint, method='GET', params=None, body=None):
@@ -163,6 +165,86 @@ def api_stock(request):
         "count": len(productos),
         "productos": productos
     })      
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def api_chilexpress_cotizar(request):
+    """
+    POST /api/chilexpress/cotizar/
+
+    Cotiza un envío utilizando la API REST de Chilexpress.
+    """
+
+    try:
+        body = json.loads(request.body)
+
+        payload = {
+
+            "originCountyCode": body["origen"],
+            "destinationCountyCode": body["destino"],
+
+            "package": {
+
+                "weight": str(body["peso"]),
+                "height": str(body["alto"]),
+                "width": str(body["ancho"]),
+                "length": str(body["largo"])
+
+            },
+
+            "productType": 3,
+            "contentType": 1,
+            "declaredWorth": str(body["valor"]),
+            "deliveryTime": 0
+
+        }
+
+        url = "http://testservices.wschilexpress.com/rating/api/v1.0/rates/courier"
+
+        req = urllib.request.Request(
+
+            url,
+
+            data=json.dumps(payload).encode(),
+
+            headers={
+                "Content-Type": "application/json"
+            },
+
+            method="POST"
+
+        )
+
+        with urllib.request.urlopen(req, timeout=20) as response:
+
+            respuesta = json.loads(response.read().decode())
+
+            return JsonResponse(respuesta)
+
+    except Exception as e:
+
+        return JsonResponse({
+
+            "error": str(e)
+
+        }, status=500)
+    
+@require_http_methods(["GET"])
+def api_chilexpress_coberturas(request):
+
+    url = "https://testservices.wschilexpress.com/georeference/api/v1.0/coverage-areas"
+
+    try:
+
+        response = requests.get(url, timeout=10)
+
+        return JsonResponse(response.json(), safe=False)
+
+    except Exception as e:
+
+        return JsonResponse({
+            "error": str(e)
+        }, status=500)   
 
 @csrf_exempt
 @require_http_methods(['POST'])

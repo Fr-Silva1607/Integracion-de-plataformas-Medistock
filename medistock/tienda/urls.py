@@ -49,8 +49,21 @@ urlpatterns = [
 ),
 
 path(
+    'api/chilexpress/cotizar/',
+    api.api_chilexpress_cotizar,
+    name='api_chilexpress_cotizar'
+),
+
+path(
     'api/chilexpress/validar-direccion/',
     api.api_validar_direccion,
     name='api_validar_direccion'
 ),
+
+path(
+    "api/chilexpress/coberturas/",
+    api.api_chilexpress_coberturas,
+    name="api_chilexpress_coberturas"
+),
+
 ]
